@@ -12,7 +12,7 @@ export interface Product {
     category_id: number,
 }
 
-export const def = () => ({model: "", manufacturer: "", price: 0, quantity: 0, per_order_limit: null, image: null, warranty_days: 0, category_id: null});
+export const def = () => ({});
 
 export const colDef: GridColDef[] = [
     {field: 'model', headerName: 'Model', type: "string", width: 150, editable: true, hideable: false},
@@ -44,4 +44,6 @@ export const productInfo = {
         "warranty_days": row.warranty_days,
         "category_id": row.category_id,
     }),
+    "creatable": false,
+    "deletable": true,
 }

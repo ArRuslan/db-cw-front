@@ -26,6 +26,7 @@ import Drawer from '@mui/material/Drawer';
 import CategoryIcon from '@mui/icons-material/Category';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import ListAltIcon from '@mui/icons-material/ListAlt';
+import PeopleIcon from '@mui/icons-material/People';
 import {entityType} from "../App";
 import {capitalize} from "../utils";
 import {useNavigate} from "react-router-dom";
@@ -96,6 +97,14 @@ export default function Navigation() {
                                 <ListAltIcon/>
                             </ListItemIcon>
                             <ListItemText primary="Orders"/>
+                        </ListItemButton>
+                    </ListItem>
+                    <ListItem key="Customers" disablePadding>
+                        <ListItemButton onClick={() => {navigate("/customers"); setMobileOpen(false);}}>
+                            <ListItemIcon>
+                                <PeopleIcon/>
+                            </ListItemIcon>
+                            <ListItemText primary="Customers"/>
                         </ListItemButton>
                     </ListItem>
                 </List>

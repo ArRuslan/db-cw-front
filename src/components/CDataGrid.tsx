@@ -21,6 +21,7 @@ import {Button} from "@mui/material";
 import ApiClient from "../api/client";
 import {TYPES} from "../types/types";
 import {entityType} from "../App";
+import {useSnackbar} from "notistack";
 
 interface EditToolbarProps {
     setRows: (newRows: (oldRows: GridRowsProp) => GridRowsProp) => void;
@@ -31,6 +32,8 @@ function EditToolbar(props: EditToolbarProps) {
     const {setRows, setRowModesModel} = props;
 
     const handleClick = () => {
+        if(!TYPES[entityType.value].creatable)
+            return;
         const id = Date.now();
         setRows((oldRows) => [...oldRows, {id: id, isNew: true, ...TYPES[entityType.value].default()}]);
         setRowModesModel((oldModel) => ({
@@ -52,6 +55,7 @@ function CDataGrid() {
     const [isLoading, setLoading] = useState(true);
     const [paginationModel, setPaginationModel] = useState({page: 0, pageSize: 10});
     const [categoriesCount, setCategoriesCount] = useState(0);
+    const { enqueueSnackbar } = useSnackbar();
 
     const fetchItems = () => {
         setLoading(true);
@@ -82,6 +86,9 @@ function CDataGrid() {
     const handleDeleteClick = (id: GridRowId) => () => {
         ApiClient.delete(TYPES[entityType.value].endpoint, id as number).then(r => {
             r && setRows(rows.filter((row) => row.id !== id));
+            r
+                ? enqueueSnackbar('Deleted!', { variant: "info" })
+                : enqueueSnackbar('Failed to delete!', { variant: "error" });
         });
     };
 
@@ -106,7 +113,13 @@ function CDataGrid() {
             prom.then(r => {
                 setRows(rows.map((row) => (row.id === newRow.id ? r : row)));
                 newRow.isNew && setCategoriesCount((prev) => prev + 1);
+                newRow.isNew
+                    ? enqueueSnackbar('Created!', { variant: "info" })
+                    : enqueueSnackbar('Updated!', { variant: "info" });
+
                 resolve(r);
+            }).catch(e => {
+                enqueueSnackbar(`Failed to ${newRow.isNew ? "create" : "update"}!`, { variant: "error" });
             });
         });
     };
@@ -145,7 +158,7 @@ function CDataGrid() {
                     ];
                 }
 
-                return [
+                return TYPES[entityType.value].deletable ? [
                     <GridActionsCellItem
                         icon={<EditIcon/>}
                         label="Edit"
@@ -157,6 +170,14 @@ function CDataGrid() {
                         icon={<DeleteIcon/>}
                         label="Delete"
                         onClick={handleDeleteClick(id)}
+                        color="inherit"
+                    />,
+                ] : [
+                    <GridActionsCellItem
+                        icon={<EditIcon/>}
+                        label="Edit"
+                        className="textPrimary"
+                        onClick={handleEditClick(id)}
                         color="inherit"
                     />,
                 ];

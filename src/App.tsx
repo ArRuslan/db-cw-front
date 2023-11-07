@@ -4,20 +4,23 @@ import Navigation from "./components/Navigation";
 import {signal} from '@preact/signals-react';
 import CDataGrid from "./components/CDataGrid";
 import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
+import {SnackbarProvider} from "notistack";
 
-type EntityType = "categories" | "products";
+type EntityType = "categories" | "products" | "orders" | "customers";
 
 export const entityType = signal<EntityType>("categories");
 
 function ListApp({entity}: {entity: EntityType}) {
     entityType.value = entity;
 
-    return (<>
-        <Navigation/>
-        <Box component="main" sx={{p: 3}}>
-            <CDataGrid/>
-        </Box>
-    </>);
+    return (
+        <SnackbarProvider maxSnack={10} anchorOrigin={{ vertical: "bottom", horizontal: "right" }}>
+            <Navigation/>
+            <Box component="main" sx={{ p: 3 }}>
+                <CDataGrid/>
+            </Box>
+        </SnackbarProvider>
+    );
 }
 
 export default function App() {
@@ -29,7 +32,8 @@ export default function App() {
                 <Route index path="/" element={def}/>
                 <Route path="/categories" element={<ListApp entity="categories"/>}/>
                 <Route path="/products" element={<ListApp entity="products"/>}/>
-                {/*<Route path="/orders" element={<ListApp entity="orders"/>}/>*/}
+                <Route path="/orders" element={<ListApp entity="orders"/>}/>
+                <Route path="/customers" element={<ListApp entity="customers"/>}/>
 
                 <Route path="*" element={def}/>
             </Routes>

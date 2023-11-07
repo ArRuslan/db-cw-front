@@ -16,4 +16,6 @@ export const categoryInfo = {
     "default": () => ({name: "", description: ""}),
     "colDef": colDef,
     "fromRow": (row: GridRowModel) => ({"name": row.name, "description": row.description}),
+    "creatable": true,
+    "deletable": true,
 }
