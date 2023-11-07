@@ -5,7 +5,7 @@ import {signal} from '@preact/signals-react';
 import CDataGrid from "./components/CDataGrid";
 import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
 
-type EntityType = "categories" | "products" | "orders";
+type EntityType = "categories" | "products";
 
 export const entityType = signal<EntityType>("categories");
 
@@ -29,7 +29,7 @@ export default function App() {
                 <Route index path="/" element={def}/>
                 <Route path="/categories" element={<ListApp entity="categories"/>}/>
                 <Route path="/products" element={<ListApp entity="products"/>}/>
-                <Route path="/orders" element={<ListApp entity="orders"/>}/>
+                {/*<Route path="/orders" element={<ListApp entity="orders"/>}/>*/}
 
                 <Route path="*" element={def}/>
             </Routes>

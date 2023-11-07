@@ -19,12 +19,12 @@ import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Close';
 import {Button} from "@mui/material";
 import ApiClient from "../api/client";
+import {TYPES} from "../types/types";
+import {entityType} from "../App";
 
 interface EditToolbarProps {
     setRows: (newRows: (oldRows: GridRowsProp) => GridRowsProp) => void;
-    setRowModesModel: (
-        newModel: (oldModel: GridRowModesModel) => GridRowModesModel,
-    ) => void;
+    setRowModesModel: (newModel: (oldModel: GridRowModesModel) => GridRowModesModel) => void;
 }
 
 function EditToolbar(props: EditToolbarProps) {
@@ -32,7 +32,7 @@ function EditToolbar(props: EditToolbarProps) {
 
     const handleClick = () => {
         const id = Date.now();
-        setRows((oldRows) => [...oldRows, {id: id, name: '', description: '', isNew: true}]);
+        setRows((oldRows) => [...oldRows, {id: id, isNew: true, ...TYPES[entityType.value].default()}]);
         setRowModesModel((oldModel) => ({
             ...oldModel,
             [id]: {mode: GridRowModes.Edit, fieldToFocus: 'name'},
@@ -53,16 +53,16 @@ function CDataGrid() {
     const [paginationModel, setPaginationModel] = useState({page: 0, pageSize: 10});
     const [categoriesCount, setCategoriesCount] = useState(0);
 
-    const fetchCategories = () => {
+    const fetchItems = () => {
         setLoading(true);
-        ApiClient.fetch("categories", paginationModel.page, paginationModel.pageSize).then(r => {
+        ApiClient.fetch(TYPES[entityType.value].endpoint, paginationModel.page, paginationModel.pageSize).then(r => {
             setRows(r.results);
             setCategoriesCount(r.count);
             setLoading(false);
         })
     }
 
-    useEffect(fetchCategories, [paginationModel]);
+    useEffect(fetchItems, [paginationModel, entityType.value]);
 
     const handleRowEditStop: GridEventListener<'rowEditStop'> = (params, event) => {
         if (params.reason === GridRowEditStopReasons.rowFocusOut) {
@@ -80,7 +80,7 @@ function CDataGrid() {
     });
 
     const handleDeleteClick = (id: GridRowId) => () => {
-        ApiClient.delete("categories", id as number).then(r => {
+        ApiClient.delete(TYPES[entityType.value].endpoint, id as number).then(r => {
             r && setRows(rows.filter((row) => row.id !== id));
         });
     };
@@ -99,11 +99,13 @@ function CDataGrid() {
 
     const processRowUpdate = (newRow: GridRowModel) => {
         return new Promise((resolve) => {
-            const data = {"name": newRow.name, "description": newRow.description};
-            const prom = newRow.isNew ? ApiClient.create("categories", data) : ApiClient.update("categories", newRow.id, data);
+            const data = TYPES[entityType.value].fromRow(newRow);
+            const endpoint = TYPES[entityType.value].endpoint;
+
+            const prom = newRow.isNew ? ApiClient.create(endpoint, data) : ApiClient.update(endpoint, newRow.id, data);
             prom.then(r => {
                 setRows(rows.map((row) => (row.id === newRow.id ? r : row)));
-                newRow.isNew && setCategoriesCount((prev) => prev += 1);
+                newRow.isNew && setCategoriesCount((prev) => prev + 1);
                 resolve(r);
             });
         });
@@ -114,8 +116,7 @@ function CDataGrid() {
     };
 
     const columns: GridColDef[] = [
-        {field: 'name', headerName: 'Name', width: 180, editable: true, hideable: false},
-        {field: 'description', headerName: 'Description', width: 250, editable: true, hideable: false},
+        ...TYPES[entityType.value].colDef,
         {
             field: 'actions',
             type: 'actions',
