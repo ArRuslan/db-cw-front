@@ -1,6 +1,7 @@
 import {GridColDef, GridRowModel} from "@mui/x-data-grid";
+import BaseEntity from "./base_entity";
 
-export interface Category {
+export interface Category extends BaseEntity{
     id: number,
     name: string,
     description: string | null,
@@ -18,4 +19,5 @@ export const categoryInfo = {
     "fromRow": (row: GridRowModel) => ({"name": row.name, "description": row.description}),
     "creatable": true,
     "deletable": true,
+    "addCallback": null,
 }

@@ -22,6 +22,10 @@ import ApiClient from "../api/client";
 import {TYPES} from "../types/types";
 import {entityType} from "../App";
 import {useSnackbar} from "notistack";
+import {useDispatch, useSelector} from "react-redux";
+import {setAuthToken} from "../redux/accountState";
+import {RootState} from "../redux/store";
+import {Entity, setECount, setEntities} from "../redux/entitiesState";
 
 interface EditToolbarProps {
     setRows: (newRows: (oldRows: GridRowsProp) => GridRowsProp) => void;
@@ -29,13 +33,21 @@ interface EditToolbarProps {
 }
 
 function EditToolbar(props: EditToolbarProps) {
-    const {setRows, setRowModesModel} = props;
+    const ent = useSelector((state: RootState) => state.entities);
+    const dispatch = useDispatch();
+
+    const {setRowModesModel} = props;
 
     const handleClick = () => {
-        if(!TYPES[entityType.value].creatable)
+        if (TYPES[entityType.value].addCallback !== null)
+            TYPES[entityType.value].addCallback!();
+        if (!TYPES[entityType.value].creatable)
             return;
         const id = Date.now();
-        setRows((oldRows) => [...oldRows, {id: id, isNew: true, ...TYPES[entityType.value].default()}]);
+        dispatch(setEntities({
+            type: entityType.value,
+            arr: [...ent[entityType.value], {id: id, isNew: true, ...TYPES[entityType.value].default()}] as Entity[]
+        }))
         setRowModesModel((oldModel) => ({
             ...oldModel,
             [id]: {mode: GridRowModes.Edit, fieldToFocus: 'name'},
@@ -50,23 +62,27 @@ function EditToolbar(props: EditToolbarProps) {
 }
 
 function CDataGrid() {
-    const [rows, setRows] = useState<GridRowsProp>([]);
+    const rows = useSelector((state: RootState) => state.entities[entityType.value]);
+    const rowsCount = useSelector((state: RootState) => state.entities.counts[entityType.value]);
     const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
     const [isLoading, setLoading] = useState(true);
     const [paginationModel, setPaginationModel] = useState({page: 0, pageSize: 10});
-    const [categoriesCount, setCategoriesCount] = useState(0);
-    const { enqueueSnackbar } = useSnackbar();
+    const {enqueueSnackbar} = useSnackbar();
+    const token = useSelector((state: RootState) => state.account.token);
+    const dispatch = useDispatch();
 
     const fetchItems = () => {
         setLoading(true);
         ApiClient.fetch(TYPES[entityType.value].endpoint, paginationModel.page, paginationModel.pageSize).then(r => {
-            setRows(r.results);
-            setCategoriesCount(r.count);
+            dispatch(setEntities({type: entityType.value, arr: r.results as Entity[]}));
+            dispatch(setECount({type: entityType.value, count: r.count}));
             setLoading(false);
-        })
+        }, e => {
+            typeof (e) === "number" && e === 401 && dispatch(setAuthToken(null));
+        });
     }
 
-    useEffect(fetchItems, [paginationModel, entityType.value]);
+    useEffect(fetchItems, [paginationModel, entityType.value, token]);
 
     const handleRowEditStop: GridEventListener<'rowEditStop'> = (params, event) => {
         if (params.reason === GridRowEditStopReasons.rowFocusOut) {
@@ -85,10 +101,13 @@ function CDataGrid() {
 
     const handleDeleteClick = (id: GridRowId) => () => {
         ApiClient.delete(TYPES[entityType.value].endpoint, id as number).then(r => {
-            r && setRows(rows.filter((row) => row.id !== id));
+            r && dispatch(setEntities({type: entityType.value, arr: rows.filter((row) => row.id !== id) as Entity[]}));
             r
-                ? enqueueSnackbar('Deleted!', { variant: "info" })
-                : enqueueSnackbar('Failed to delete!', { variant: "error" });
+                ? enqueueSnackbar('Deleted!', {variant: "info"})
+                : enqueueSnackbar('Failed to delete!', {variant: "error"});
+            r && dispatch(setECount({type: entityType.value, count: rowsCount - 1}));
+        }, e => {
+            typeof (e) === "number" && e === 401 && dispatch(setAuthToken(null));
         });
     };
 
@@ -100,7 +119,7 @@ function CDataGrid() {
 
         const editedRow = rows.find((row) => row.id === id);
         if (editedRow!.isNew) {
-            setRows(rows.filter((row) => row.id !== id));
+            dispatch(setEntities({type: entityType.value, arr: rows.filter((row) => row.id !== id) as Entity[]}));
         }
     };
 
@@ -111,15 +130,17 @@ function CDataGrid() {
 
             const prom = newRow.isNew ? ApiClient.create(endpoint, data) : ApiClient.update(endpoint, newRow.id, data);
             prom.then(r => {
-                setRows(rows.map((row) => (row.id === newRow.id ? r : row)));
-                newRow.isNew && setCategoriesCount((prev) => prev + 1);
+                dispatch(setEntities({type: entityType.value, arr: rows.map((row) => (row.id === newRow.id ? r : row)) as Entity[]}));
+                newRow.isNew && dispatch(setECount({type: entityType.value, count: rowsCount + 1}));
                 newRow.isNew
-                    ? enqueueSnackbar('Created!', { variant: "info" })
-                    : enqueueSnackbar('Updated!', { variant: "info" });
+                    ? enqueueSnackbar('Created!', {variant: "info"})
+                    : enqueueSnackbar('Updated!', {variant: "info"});
 
                 resolve(r);
+            }, e => {
+                typeof (e) === "number" && e === 401 && dispatch(setAuthToken(null));
             }).catch(e => {
-                enqueueSnackbar(`Failed to ${newRow.isNew ? "create" : "update"}!`, { variant: "error" });
+                enqueueSnackbar(`Failed to ${newRow.isNew ? "create" : "update"}!`, {variant: "error"});
             });
         });
     };
@@ -189,7 +210,7 @@ function CDataGrid() {
         <DataGrid
             loading={isLoading}
             rows={rows}
-            rowCount={categoriesCount}
+            rowCount={rowsCount}
             columns={columns}
             pageSizeOptions={[10, 25, 50, 100]}
             editMode="row"
@@ -198,7 +219,7 @@ function CDataGrid() {
             onRowEditStop={handleRowEditStop}
             processRowUpdate={processRowUpdate}
             slots={{toolbar: EditToolbar}}
-            slotProps={{toolbar: {setRows, setRowModesModel}}}
+            slotProps={{toolbar: {setRowModesModel}}}
             paginationMode="server"
             paginationModel={paginationModel}
             onPaginationModelChange={setPaginationModel}

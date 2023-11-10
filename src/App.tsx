@@ -5,10 +5,12 @@ import {signal} from '@preact/signals-react';
 import CDataGrid from "./components/CDataGrid";
 import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
 import {SnackbarProvider} from "notistack";
+import CreateProductDialog from "./dialogs/CreateProductDialog";
 
-type EntityType = "categories" | "products" | "orders" | "customers";
+export type EntityType = "categories" | "products" | "orders" | "customers";
 
 export const entityType = signal<EntityType>("categories");
+export const entityTypes: EntityType[] = ["categories", "products", "orders", "customers"];
 
 function ListApp({entity}: {entity: EntityType}) {
     entityType.value = entity;
@@ -18,6 +20,7 @@ function ListApp({entity}: {entity: EntityType}) {
             <Navigation/>
             <Box component="main" sx={{ p: 3 }}>
                 <CDataGrid/>
+                <CreateProductDialog/>
             </Box>
         </SnackbarProvider>
     );

@@ -1,6 +1,10 @@
 import {GridColDef, GridRowModel} from "@mui/x-data-grid";
+import BaseEntity from "./base_entity";
+import store from "../redux/store";
+import {openDialog} from "../redux/dialogsState";
+import {Category} from "./category";
 
-export interface Product {
+export interface Product extends BaseEntity {
     id: number,
     model: string,
     manufacturer: string,
@@ -19,7 +23,14 @@ export const colDef: GridColDef[] = [
     {field: 'manufacturer', headerName: 'Manufacturer', type: "string", width: 150, editable: true, hideable: false},
     {field: 'price', headerName: 'Price', type: "number", width: 150, editable: true, hideable: false},
     {field: 'quantity', headerName: 'Quantity', type: "number", width: 150, editable: true, hideable: false},
-    {field: 'per_order_limit', headerName: 'Per order limit', type: "number", width: 150, editable: true, hideable: false},
+    {
+        field: 'per_order_limit',
+        headerName: 'Per order limit',
+        type: "number",
+        width: 150,
+        editable: true,
+        hideable: false
+    },
     {field: 'warranty_days', headerName: 'Warranty days', type: "number", width: 150, editable: true, hideable: false},
     {
         field: 'category_id',
@@ -28,6 +39,13 @@ export const colDef: GridColDef[] = [
         width: 150,
         editable: false,
         hideable: false,
+        valueGetter: params => {
+            const categoryId = params.row.category_id;
+            for(let cat of store.getState().entities.categories)
+                if(cat.id === categoryId) return (cat as Category).name;
+
+            return "Unknown category!"
+        }
     },
 ];
 
@@ -46,4 +64,7 @@ export const productInfo = {
     }),
     "creatable": false,
     "deletable": true,
+    "addCallback": () => {
+        store.dispatch(openDialog("product_create"))
+    },
 }

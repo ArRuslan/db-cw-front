@@ -1,6 +1,7 @@
 import {GridColDef, GridRowModel} from "@mui/x-data-grid";
+import BaseEntity from "./base_entity";
 
-export interface Customer {
+export interface Customer extends BaseEntity{
     id: number,
     first_name: string,
     last_name: string,
@@ -27,4 +28,5 @@ export const customerInfo = {
     }),
     "creatable": true,
     "deletable": true,
+    "addCallback": null,
 }

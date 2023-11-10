@@ -27,24 +27,29 @@ import CategoryIcon from '@mui/icons-material/Category';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import PeopleIcon from '@mui/icons-material/People';
-import {entityType} from "../App";
+import {entityType, entityTypes} from "../App";
 import {capitalize} from "../utils";
 import {useNavigate} from "react-router-dom";
+import {useDispatch, useSelector} from "react-redux";
+import {RootState} from "../redux/store";
+import {setAuthToken} from "../redux/accountState";
+import {enqueueSnackbar} from "notistack";
 
 const drawerWidth = 240;
 
 export default function Navigation() {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [mobileOpen, setMobileOpen] = useState(false);
-    const [loginOpen, setLoginOpen] = useState(false);
     const emailRef = useRef<HTMLInputElement | null>(null);
     const passwordRef = useRef<HTMLInputElement | null>(null);
+    const token = useSelector((state: RootState) => state.account.token);
+    const user = useSelector((state: RootState) => state.account.me);
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
     const handleMenu = (event: React.MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget);
     const handleClose = () => setAnchorEl(null);
-    const handleLoginClose = () => setLoginOpen(false);
 
     const processLogin = () => {
         const email = emailRef.current!.value;
@@ -59,97 +64,94 @@ export default function Navigation() {
                 password: password,
             }),
         }).then(r => {
-            if(r.status === 200) {
+            if (r.status === 200) {
                 r.json().then(j => {
-                    // process response
+                    dispatch(setAuthToken(j["token"]));
+                    enqueueSnackbar(`Successfully logged in!`, {variant: "success"})
+                });
+            } else {
+                r.json().then(j => {
+                    enqueueSnackbar(`Failed to log in: ${j["detail"]}`, {variant: "error"})
                 });
             }
-            handleLoginClose();
         });
     };
+
+    const icons = {
+        categories: <CategoryIcon/>,
+        products: <InventoryIcon/>,
+        orders: <ListAltIcon/>,
+        customers: <PeopleIcon/>,
+    }
 
     const drawer = (
         <div>
             <Toolbar>
-                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>TODO: TITLE</Typography>
+                <Typography variant="h6" component="div" sx={{flexGrow: 1}}>Store</Typography>
             </Toolbar>
-            <Divider />
-                <List>
-                    <ListItem key="Categories" disablePadding>
-                        <ListItemButton onClick={() => {navigate("/categories"); setMobileOpen(false);}}>
+            <Divider/>
+            <List>
+                {entityTypes.map(item => (
+                    <ListItem key={item} disablePadding>
+                        <ListItemButton onClick={() => {
+                            navigate(`/${item}`);
+                            setMobileOpen(false);
+                        }}>
                             <ListItemIcon>
-                                <CategoryIcon/>
+                                {icons[item]}
                             </ListItemIcon>
-                            <ListItemText primary="Categories"/>
+                            <ListItemText primary={capitalize(item)}/>
                         </ListItemButton>
                     </ListItem>
-                    <ListItem key="Products" disablePadding>
-                        <ListItemButton onClick={() => {navigate("/products"); setMobileOpen(false);}}>
-                            <ListItemIcon>
-                                <InventoryIcon/>
-                            </ListItemIcon>
-                            <ListItemText primary="Products"/>
-                        </ListItemButton>
-                    </ListItem>
-                    <ListItem key="Orders" disablePadding>
-                        <ListItemButton onClick={() => {navigate("/orders"); setMobileOpen(false);}}>
-                            <ListItemIcon>
-                                <ListAltIcon/>
-                            </ListItemIcon>
-                            <ListItemText primary="Orders"/>
-                        </ListItemButton>
-                    </ListItem>
-                    <ListItem key="Customers" disablePadding>
-                        <ListItemButton onClick={() => {navigate("/customers"); setMobileOpen(false);}}>
-                            <ListItemIcon>
-                                <PeopleIcon/>
-                            </ListItemIcon>
-                            <ListItemText primary="Customers"/>
-                        </ListItemButton>
-                    </ListItem>
-                </List>
+                ))}
+            </List>
         </div>
     );
 
     const loginDialog = (
-        <Dialog open={Boolean(loginOpen)} onClose={handleLoginClose}>
+        <Dialog open={!Boolean(token)}>
             <DialogTitle>Log in</DialogTitle>
             <DialogContent>
-                <TextField autoFocus margin="dense" label="Email Address" type="email" fullWidth variant="standard" inputRef={emailRef}/>
-                <TextField margin="dense" label="Password" type="password" fullWidth variant="standard" inputRef={passwordRef}/>
+                <TextField autoFocus margin="dense" label="Email Address" type="email" fullWidth variant="standard"
+                           inputRef={emailRef}/>
+                <TextField margin="dense" label="Password" type="password" fullWidth variant="standard"
+                           inputRef={passwordRef}/>
             </DialogContent>
             <DialogActions>
-                <Button onClick={handleLoginClose}>Cancel</Button>
                 <Button onClick={processLogin}>Log in</Button>
             </DialogActions>
         </Dialog>
     );
 
     return (<>
-        <Box sx={{ flexGrow: 1 }}>
+        <Box sx={{flexGrow: 1}}>
             <AppBar position="static">
                 <Toolbar>
-                    <IconButton size="large" edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}>
+                    <IconButton size="large" edge="start" color="inherit" aria-label="menu" sx={{mr: 2}}>
                         <MenuIcon onClick={handleDrawerToggle}/>
                     </IconButton>
-                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>{capitalize(entityType.value)}</Typography>
+                    <Typography variant="h6" component="div"
+                                sx={{flexGrow: 1}}>{capitalize(entityType.value)}</Typography>
                     <IconButton size="large" onClick={handleMenu} color="inherit">
-                        <AccountCircle />
+                        <AccountCircle/>
                     </IconButton>
                     <Menu anchorEl={anchorEl} anchorOrigin={{vertical: 'top', horizontal: 'right'}} keepMounted
                           transformOrigin={{vertical: 'top', horizontal: 'right'}} open={Boolean(anchorEl)}
                           onClose={handleClose}>
-                          <MenuItem disabled={true}>Hi, {"TODO: NAME"}</MenuItem>
-                          <MenuItem onClick={() => {handleClose();}}>Log out</MenuItem>
+                        <MenuItem disabled={true}>Hi, {user.first_name}</MenuItem>
+                        <MenuItem onClick={() => {
+                            dispatch(setAuthToken(null));
+                            handleClose();
+                        }}>Log out</MenuItem>
                     </Menu>
                 </Toolbar>
             </AppBar>
         </Box>
 
-        <Box component="nav" sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}>
+        <Box component="nav" sx={{width: {sm: drawerWidth}, flexShrink: {sm: 0}}}>
             <Drawer container={() => window.document.body} variant="temporary" open={mobileOpen}
-                    onClose={handleDrawerToggle} ModalProps={{ keepMounted: true }}
-                    sx={{ '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth }}}>
+                    onClose={handleDrawerToggle} ModalProps={{keepMounted: true}}
+                    sx={{'& .MuiDrawer-paper': {boxSizing: 'border-box', width: drawerWidth}}}>
                 {drawer}
             </Drawer>
         </Box>
