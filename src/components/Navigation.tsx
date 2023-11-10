@@ -27,6 +27,7 @@ import CategoryIcon from '@mui/icons-material/Category';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import PeopleIcon from '@mui/icons-material/People';
+import MemoryIcon from '@mui/icons-material/Memory';
 import {entityType, entityTypes} from "../App";
 import {capitalize} from "../utils";
 import {useNavigate} from "react-router-dom";
@@ -82,6 +83,7 @@ export default function Navigation() {
         products: <InventoryIcon/>,
         orders: <ListAltIcon/>,
         customers: <PeopleIcon/>,
+        characteristics: <MemoryIcon/>,
     }
 
     const drawer = (

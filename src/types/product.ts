@@ -64,7 +64,6 @@ export const productInfo = {
     }),
     "creatable": false,
     "deletable": true,
-    "addCallback": () => {
-        store.dispatch(openDialog("product_create"))
-    },
+    "addCallback": () => store.dispatch(openDialog("product_create")),
+    "externalAction": (id: number) => null,
 }

@@ -4,19 +4,22 @@ import {EntityType} from "../App";
 import {Order} from "../types/order";
 import {Customer} from "../types/customer";
 import {Product} from "../types/product";
+import {Characteristic} from "../types/characteristic";
 
-export type Entity = Category | Product | Customer | Order;
+export type Entity = Category | Product | Customer | Order | Characteristic;
 
 export interface EntitiesState {
     categories: Category[] | Entity[],
     products: Product[] | Entity[],
     customers: Customer[] | Entity[],
     orders: Order[] | Entity[],
+    characteristics: Characteristic[] | Entity[],
     counts: {
         categories: number,
         products: number,
         customers: number,
         orders: number,
+        characteristics: number,
     },
 }
 
@@ -27,11 +30,13 @@ export const entitiesState = createSlice({
         products: [],
         customers: [],
         orders: [],
+        characteristics: [],
         counts: {
             categories: 0,
             products: 0,
             customers: 0,
             orders: 0,
+            characteristics: 0,
         },
     } as EntitiesState,
     reducers: {

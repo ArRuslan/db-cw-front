@@ -17,6 +17,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Close';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import {Button} from "@mui/material";
 import ApiClient from "../api/client";
 import {TYPES} from "../types/types";
@@ -38,6 +39,8 @@ function EditToolbar(props: EditToolbarProps) {
 
     const {setRowModesModel} = props;
 
+    const showButton = TYPES[entityType.value].creatable || TYPES[entityType.value].addCallback !== null;
+
     const handleClick = () => {
         if (TYPES[entityType.value].addCallback !== null)
             TYPES[entityType.value].addCallback!();
@@ -50,13 +53,13 @@ function EditToolbar(props: EditToolbarProps) {
         }))
         setRowModesModel((oldModel) => ({
             ...oldModel,
-            [id]: {mode: GridRowModes.Edit, fieldToFocus: 'name'},
+            [id]: {mode: GridRowModes.Edit, fieldToFocus: TYPES[entityType.value].colDef[0].field},
         }));
     };
 
     return (
         <GridToolbarContainer>
-            <Button color="primary" startIcon={<AddIcon/>} onClick={handleClick}>Add</Button>
+            {showButton && <Button color="primary" startIcon={<AddIcon/>} onClick={handleClick}>Add</Button>}
         </GridToolbarContainer>
     );
 }
@@ -155,53 +158,65 @@ function CDataGrid() {
             field: 'actions',
             type: 'actions',
             headerName: 'Actions',
-            align: 'right',
-            width: 100,
+            align: 'center',
+            width: 150,
             cellClassName: 'actions',
             getActions: ({id}) => {
                 const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
 
-                if (isInEditMode) {
-                    return [
-                        <GridActionsCellItem
-                            icon={<SaveIcon/>}
-                            label="Save"
-                            sx={{color: 'primary.main'}}
-                            onClick={handleSaveClick(id)}
-                        />,
-                        <GridActionsCellItem
-                            icon={<CancelIcon/>}
-                            label="Cancel"
-                            className="textPrimary"
-                            onClick={handleCancelClick(id)}
-                            color="inherit"
-                        />,
-                    ];
-                }
-
-                return TYPES[entityType.value].deletable ? [
+                const saveBtn = (
+                    <GridActionsCellItem
+                        icon={<SaveIcon/>}
+                        label="Save"
+                        sx={{color: 'primary.main'}}
+                        onClick={handleSaveClick(id)}
+                    />
+                );
+                const cancelBtn = (
+                    <GridActionsCellItem
+                        icon={<CancelIcon/>}
+                        label="Cancel"
+                        className="textPrimary"
+                        onClick={handleCancelClick(id)}
+                        color="inherit"
+                    />
+                );
+                const editBtn = (
                     <GridActionsCellItem
                         icon={<EditIcon/>}
                         label="Edit"
                         className="textPrimary"
                         onClick={handleEditClick(id)}
                         color="inherit"
-                    />,
+                    />
+                );
+                const deleteBtn = (
                     <GridActionsCellItem
                         icon={<DeleteIcon/>}
                         label="Delete"
                         onClick={handleDeleteClick(id)}
                         color="inherit"
-                    />,
-                ] : [
+                    />
+                );
+                const externalBtn = (
                     <GridActionsCellItem
-                        icon={<EditIcon/>}
-                        label="Edit"
-                        className="textPrimary"
-                        onClick={handleEditClick(id)}
+                        icon={<OpenInNewIcon/>}
+                        label="Open"
+                        onClick={() => TYPES[entityType.value].externalAction!(id as number)}
                         color="inherit"
-                    />,
-                ];
+                    />
+                );
+
+                if (isInEditMode)
+                    return [saveBtn, cancelBtn];
+
+                const res = [editBtn];
+                if(TYPES[entityType.value].deletable)
+                    res.push(deleteBtn);
+                if(TYPES[entityType.value].externalAction !== null)
+                    res.push(externalBtn);
+
+                return res
             },
         },
     ];

@@ -14,7 +14,7 @@ export default class ApiClient {
                 r.status === 200 && r.json().then(j => {
                     resolve(j as FetchResult);
                 });
-                r.status === 401 && reject(401);
+                r.status >= 400 && reject(r.status);
             })
         });
     }
@@ -25,7 +25,7 @@ export default class ApiClient {
                 method: "DELETE",
                 headers: {"Authorization": store.getState().account.token!}
             }).then(r => {
-                r.status === 401 && reject(401);
+                r.status >= 400 && reject(r.status);
                 resolve(r.status === 204);
             });
         });
@@ -39,7 +39,7 @@ export default class ApiClient {
                 body: JSON.stringify(data)
             }).then(r => {
                 r.status === 200 && r.json().then(j => resolve(j));
-                r.status === 401 && reject(401);
+                r.status >= 400 && reject(r.status);
             });
         })
     }
@@ -52,7 +52,7 @@ export default class ApiClient {
                 body: JSON.stringify(data)
             }).then(r => {
                 r.status === 200 && r.json().then(j => resolve(j));
-                r.status === 401 && reject(401);
+                r.status >= 400 && reject(r.status);
             });
         })
     }

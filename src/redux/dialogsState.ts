@@ -7,7 +7,7 @@ export interface DialogsState {
 export const dialogsState = createSlice({
     "name": "dialogs",
     initialState: {
-        product_create: false
+        product_create: false,
     } as DialogsState,
     reducers: {
         openDialog: (state: DialogsState, action: PayloadAction<keyof DialogsState>) => {

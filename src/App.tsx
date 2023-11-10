@@ -7,18 +7,18 @@ import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
 import {SnackbarProvider} from "notistack";
 import CreateProductDialog from "./dialogs/CreateProductDialog";
 
-export type EntityType = "categories" | "products" | "orders" | "customers";
+export type EntityType = "categories" | "products" | "orders" | "customers" | "characteristics";
 
 export const entityType = signal<EntityType>("categories");
-export const entityTypes: EntityType[] = ["categories", "products", "orders", "customers"];
+export const entityTypes: EntityType[] = ["categories", "products", "orders", "customers", "characteristics"];
 
-function ListApp({entity}: {entity: EntityType}) {
+function ListApp({entity}: { entity: EntityType }) {
     entityType.value = entity;
 
     return (
-        <SnackbarProvider maxSnack={10} anchorOrigin={{ vertical: "bottom", horizontal: "right" }}>
+        <SnackbarProvider maxSnack={10} anchorOrigin={{vertical: "bottom", horizontal: "right"}}>
             <Navigation/>
-            <Box component="main" sx={{ p: 3 }}>
+            <Box component="main" sx={{p: 3}}>
                 <CDataGrid/>
                 <CreateProductDialog/>
             </Box>
@@ -37,6 +37,7 @@ export default function App() {
                 <Route path="/products" element={<ListApp entity="products"/>}/>
                 <Route path="/orders" element={<ListApp entity="orders"/>}/>
                 <Route path="/customers" element={<ListApp entity="customers"/>}/>
+                <Route path="/characteristics" element={<ListApp entity="characteristics"/>}/>
 
                 <Route path="*" element={def}/>
             </Routes>

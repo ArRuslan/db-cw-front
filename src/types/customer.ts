@@ -29,4 +29,5 @@ export const customerInfo = {
     "creatable": true,
     "deletable": true,
     "addCallback": null,
+    "externalAction": null,
 }

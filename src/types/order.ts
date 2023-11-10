@@ -2,6 +2,8 @@ import {GridColDef, GridRowModel} from "@mui/x-data-grid";
 import {Product} from "./product";
 import {Customer} from "./customer";
 import BaseEntity from "./base_entity";
+import store from "../redux/store";
+import {openDialog} from "../redux/dialogsState";
 
 export interface Order extends BaseEntity {
     id: number,
@@ -94,4 +96,5 @@ export const orderInfo = {
     "creatable": false,
     "deletable": false,
     "addCallback": null,
+    "externalAction": (id: number) => null,
 }

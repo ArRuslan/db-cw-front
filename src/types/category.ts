@@ -20,4 +20,5 @@ export const categoryInfo = {
     "creatable": true,
     "deletable": true,
     "addCallback": null,
+    "externalAction": (id: number) => null,
 }

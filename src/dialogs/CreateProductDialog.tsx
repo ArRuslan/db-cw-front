@@ -58,13 +58,13 @@ export default function CreateProductDialog() {
             dispatch(setEntities({type: "products", arr: [...rows.products, r] as Entity[]}));
             dispatch(setECount({type: entityType.value, count: rowCounts.products + 1}));
             enqueueSnackbar('Created!', {variant: "info"});
+            dispatch(closeDialog("product_create"));
         }, e => {
             typeof (e) === "number" && e === 401 && dispatch(setAuthToken(null));
+            typeof (e) === "number" && e >= 400 && enqueueSnackbar(`Failed to create!`, {variant: "error"});
         }).catch(e => {
             enqueueSnackbar(`Failed to create!`, {variant: "error"});
         });
-
-        dispatch(closeDialog("product_create"));
     }
 
     const MemoizedSelect = React.memo(() => (
