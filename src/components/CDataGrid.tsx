@@ -35,7 +35,6 @@ interface EditToolbarProps {
 }
 
 function EditToolbar(props: EditToolbarProps) {
-    const ent = useSelector((state: RootState) => state.entities);
     const dispatch = useDispatch();
 
     const {setRowModesModel} = props;
@@ -125,7 +124,8 @@ function CDataGrid() {
             [id]: {mode: GridRowModes.View, ignoreModifications: true},
         });
 
-        dispatch(delEntity({type: entityType.value, id: id as number}));
+        if(rows[id as number].isNew)
+            dispatch(delEntity({type: entityType.value, id: id as number}));
     };
 
     const processRowUpdate = (newRow: GridRowModel) => {

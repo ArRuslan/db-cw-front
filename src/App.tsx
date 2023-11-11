@@ -8,6 +8,7 @@ import {SnackbarProvider} from "notistack";
 import CreateProductDialog from "./dialogs/CreateProductDialog";
 import {EntityType} from './types/base_entity';
 import SyntaxHighlighter from 'react-syntax-highlighter';
+import CreateOrderDialog from "./dialogs/CreateOrderDialog";
 
 export const entityType = signal<EntityType>("categories");
 
@@ -20,6 +21,7 @@ function ListApp({entity}: { entity: EntityType }) {
             <Box component="main" sx={{p: 3}}>
                 <CDataGrid/>
                 <CreateProductDialog/>
+                <CreateOrderDialog/>
             </Box>
         </SnackbarProvider>
     );

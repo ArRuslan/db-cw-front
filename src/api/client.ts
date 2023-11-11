@@ -83,14 +83,18 @@ export default class ApiClient {
 
     static search(entity: string, query: {[key:string]: any}, signal: AbortSignal): Promise<FetchResult> {
         return new Promise((resolve, reject) => {
-            fetch(`http://127.0.0.1:8000/api/v0/${entity}/search?${new URLSearchParams(query)}`, {
-                signal,
-                method: "GET",
-                headers: {"Authorization": store.getState().account.token!}
-            }).then(r => {
-                r.status === 200 && r.json().then(j => resolve(j as FetchResult));
-                r.status >= 400 && reject(r.status);
-            });
+            try {
+                fetch(`http://127.0.0.1:8000/api/v0/${entity}/search?${new URLSearchParams(query)}`, {
+                    signal,
+                    method: "GET",
+                    headers: {"Authorization": store.getState().account.token!}
+                }).then(r => {
+                    r.status === 200 && r.json().then(j => resolve(j as FetchResult));
+                    r.status >= 400 && reject(r.status);
+                });
+            } catch(e) {
+                reject(e);
+            }
         })
     }
 }
