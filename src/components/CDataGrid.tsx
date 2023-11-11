@@ -26,7 +26,8 @@ import {useSnackbar} from "notistack";
 import {useDispatch, useSelector} from "react-redux";
 import {setAuthToken} from "../redux/accountState";
 import {RootState} from "../redux/store";
-import {Entity, setECount, setEntities} from "../redux/entitiesState";
+import {delEntity, setECount, setEntities} from "../redux/entitiesState";
+import BaseEntity from "../types/base_entity";
 
 interface EditToolbarProps {
     setRows: (newRows: (oldRows: GridRowsProp) => GridRowsProp) => void;
@@ -49,7 +50,7 @@ function EditToolbar(props: EditToolbarProps) {
         const id = Date.now();
         dispatch(setEntities({
             type: entityType.value,
-            arr: [...ent[entityType.value], {id: id, isNew: true, ...TYPES[entityType.value].default()}] as Entity[]
+            arr: [{id: id, isNew: true, ...TYPES[entityType.value].default()}] as BaseEntity[]
         }))
         setRowModesModel((oldModel) => ({
             ...oldModel,
@@ -77,7 +78,11 @@ function CDataGrid() {
     const fetchItems = () => {
         setLoading(true);
         ApiClient.fetch(TYPES[entityType.value].endpoint, paginationModel.page, paginationModel.pageSize).then(r => {
-            dispatch(setEntities({type: entityType.value, arr: r.results as Entity[]}));
+            if(TYPES[entityType.value].preloadExternal !== null)
+                TYPES[entityType.value].preloadExternal!(r.results, []).then(p => {
+                    dispatch(setEntities(p));
+                })
+            dispatch(setEntities({type: entityType.value, arr: r.results as BaseEntity[]}));
             dispatch(setECount({type: entityType.value, count: r.count}));
             setLoading(false);
         }, e => {
@@ -104,7 +109,7 @@ function CDataGrid() {
 
     const handleDeleteClick = (id: GridRowId) => () => {
         ApiClient.delete(TYPES[entityType.value].endpoint, id as number).then(r => {
-            r && dispatch(setEntities({type: entityType.value, arr: rows.filter((row) => row.id !== id) as Entity[]}));
+            r && dispatch(delEntity({type: entityType.value, id: id as number}));
             r
                 ? enqueueSnackbar('Deleted!', {variant: "info"})
                 : enqueueSnackbar('Failed to delete!', {variant: "error"});
@@ -120,10 +125,7 @@ function CDataGrid() {
             [id]: {mode: GridRowModes.View, ignoreModifications: true},
         });
 
-        const editedRow = rows.find((row) => row.id === id);
-        if (editedRow!.isNew) {
-            dispatch(setEntities({type: entityType.value, arr: rows.filter((row) => row.id !== id) as Entity[]}));
-        }
+        dispatch(delEntity({type: entityType.value, id: id as number}));
     };
 
     const processRowUpdate = (newRow: GridRowModel) => {
@@ -133,7 +135,8 @@ function CDataGrid() {
 
             const prom = newRow.isNew ? ApiClient.create(endpoint, data) : ApiClient.update(endpoint, newRow.id, data);
             prom.then(r => {
-                dispatch(setEntities({type: entityType.value, arr: rows.map((row) => (row.id === newRow.id ? r : row)) as Entity[]}));
+                newRow.isNew && dispatch(delEntity({type: entityType.value, id: newRow.id as number}));
+                dispatch(setEntities({type: entityType.value, arr: [r as BaseEntity]}));
                 newRow.isNew && dispatch(setECount({type: entityType.value, count: rowsCount + 1}));
                 newRow.isNew
                     ? enqueueSnackbar('Created!', {variant: "info"})
@@ -224,7 +227,7 @@ function CDataGrid() {
     return (
         <DataGrid
             loading={isLoading}
-            rows={rows}
+            rows={Object.values(rows)}
             rowCount={rowsCount}
             columns={columns}
             pageSizeOptions={[10, 25, 50, 100]}

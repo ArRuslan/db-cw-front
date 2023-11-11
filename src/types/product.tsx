@@ -1,8 +1,9 @@
 import {GridColDef, GridRowModel} from "@mui/x-data-grid";
-import BaseEntity from "./base_entity";
+import BaseEntity, {EntityType} from "./base_entity";
 import store from "../redux/store";
 import {openDialog} from "../redux/dialogsState";
 import {Category} from "./category";
+import ApiClient from "../api/client";
 
 export interface Product extends BaseEntity {
     id: number,
@@ -41,8 +42,8 @@ export const colDef: GridColDef[] = [
         hideable: false,
         valueGetter: params => {
             const categoryId = params.row.category_id;
-            for(let cat of store.getState().entities.categories)
-                if(cat.id === categoryId) return (cat as Category).name;
+            const cat = store.getState().entities.categories[categoryId];
+            if(cat) return (cat as Category).name;
 
             return "Unknown category!"
         }
@@ -65,5 +66,11 @@ export const productInfo = {
     "creatable": false,
     "deletable": true,
     "addCallback": () => store.dispatch(openDialog("product_create")),
-    "externalAction": (id: number) => null,
+    "externalAction": (id: number) => null,  // TODO: open product page, with image, characteristics, etc.
+    "preloadExternal": async (prods: object[], exclude: number[]): Promise<{type: EntityType, arr: BaseEntity[]}> => {
+        const to_load = [];
+        for(let prod of prods as Product[])
+            if(!exclude.includes(prod.category_id)) to_load.push(prod.category_id);
+        return {type: "categories" as EntityType, arr: await ApiClient.by_ids("categories", to_load) as BaseEntity[]}
+    }
 }

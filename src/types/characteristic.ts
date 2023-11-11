@@ -21,4 +21,5 @@ export const characteristicInfo = {
     "deletable": true,
     "addCallback": null,
     "externalAction": null,
+    "preloadExternal": null,
 }

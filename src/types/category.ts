@@ -21,4 +21,5 @@ export const categoryInfo = {
     "deletable": true,
     "addCallback": null,
     "externalAction": (id: number) => null,
+    "preloadExternal": null,
 }

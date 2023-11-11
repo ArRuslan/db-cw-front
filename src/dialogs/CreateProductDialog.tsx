@@ -1,30 +1,23 @@
-import {
-    Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    InputLabel,
-    MenuItem,
-    Select,
-    TextField
-} from "@mui/material";
-import React, {useEffect, useRef} from "react";
+import {Autocomplete, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField} from "@mui/material";
+import React, {SyntheticEvent, useRef, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../redux/store";
 import {closeDialog} from "../redux/dialogsState";
 import {Category} from "../types/category";
 import ApiClient from "../api/client";
-import {Entity, setECount, setEntities} from "../redux/entitiesState";
+import {setECount, setEntities} from "../redux/entitiesState";
 import {entityType} from "../App";
 import {setAuthToken} from "../redux/accountState";
 import {useSnackbar} from "notistack";
+import BaseEntity from "../types/base_entity";
 
 export default function CreateProductDialog() {
     const open = useSelector((state: RootState) => state.dialogs.product_create);
-    const rows = useSelector((state: RootState) => state.entities);
     const rowCounts = useSelector((state: RootState) => state.entities.counts);
     const dispatch = useDispatch();
+    const [options, setOptions] = useState<Category[]>([]);
+    const previousController = useRef<AbortController>();
+    const [selCat, setSelCat] = useState<Category | null>(null);
 
     const modelRef = useRef<HTMLInputElement | null>(null);
     const manufacturerRef = useRef<HTMLInputElement | null>(null);
@@ -32,19 +25,18 @@ export default function CreateProductDialog() {
     const quantityRef = useRef<HTMLInputElement | null>(null);
     const limitRef = useRef<HTMLInputElement | null>(null);
     const warrantyRef = useRef<HTMLInputElement | null>(null);
-    const categoryRef = useRef<HTMLInputElement | null>(null);
     const {enqueueSnackbar} = useSnackbar();
 
-    useEffect(() => {
-        ApiClient.fetch("categories", 0, 0).then(r => {
-            dispatch(setEntities({type: "categories", arr: r.results as Entity[]}));
-            dispatch(setECount({type: "categories", count: r.count}));
-        }, e => {
-            typeof (e) === "number" && e === 401 && dispatch(setAuthToken(null));
-        });
-    }, [open]);
-
     const createProduct = () => {
+        if(!modelRef.current?.value)
+            return enqueueSnackbar("Model is required!", {variant: "warning"});
+        if(!manufacturerRef.current?.value)
+            return enqueueSnackbar("Manufacturer is required!", {variant: "warning"});
+        if(!priceRef.current?.value)
+            return enqueueSnackbar("Price is required!", {variant: "warning"});
+        if(selCat === null)
+            return enqueueSnackbar("Category is required!", {variant: "warning"});
+
         const data = {
             "model": modelRef.current?.value,
             "manufacturer": manufacturerRef.current?.value,
@@ -52,10 +44,10 @@ export default function CreateProductDialog() {
             "quantity": quantityRef.current?.value,
             "per_order_limit": limitRef.current?.value,
             "warranty_days": warrantyRef.current?.value,
-            "category_id": categoryRef.current?.value,
+            "category_id": selCat?.id,
         }
         ApiClient.create("products", data).then(r => {
-            dispatch(setEntities({type: "products", arr: [...rows.products, r] as Entity[]}));
+            dispatch(setEntities({type: "products", arr: [r] as BaseEntity[]}));
             dispatch(setECount({type: entityType.value, count: rowCounts.products + 1}));
             enqueueSnackbar('Created!', {variant: "info"});
             dispatch(closeDialog("product_create"));
@@ -67,15 +59,23 @@ export default function CreateProductDialog() {
         });
     }
 
-    const MemoizedSelect = React.memo(() => (
-        <Select margin="dense" labelId="category-select-label" required inputRef={categoryRef}>
-            {rows.categories.map(cat => (
-                <MenuItem key={cat.id} value={cat.id}>
-                    {(cat as Category).name}
-                </MenuItem>
-            ))}
-        </Select>
-    ));
+    const getData = (searchTerm: string) => {
+        if (previousController.current) {
+            previousController.current.abort();
+        }
+        const controller = new AbortController();
+        const signal = controller.signal;
+        previousController.current = controller;
+        ApiClient.search("categories", {"name": searchTerm}, signal).then(r => setOptions(r.results as Category[]));
+    };
+
+    const onInputChange = (event: SyntheticEvent, value: string) => {
+        if (value) {
+            getData(value);
+        } else {
+            setOptions([]);
+        }
+    };
 
     return (
         <Dialog open={open}>
@@ -94,8 +94,16 @@ export default function CreateProductDialog() {
                 <TextField margin="dense" label="Warranty days" type="number" fullWidth variant="standard"
                            inputRef={warrantyRef} required defaultValue={14}/>
 
-                <InputLabel id="category-select-label">Category</InputLabel>
-                {rows.categories && <MemoizedSelect/>}
+                <Autocomplete
+                    options={options}
+                    onInputChange={onInputChange}
+                    getOptionLabel={(option: Category) => option.name}
+                    style={{ width: 300 }}
+                    onChange={(e, value) => setSelCat(value)}
+                    renderInput={(params) => (
+                        <TextField {...params} label="Category" variant="outlined" />
+                    )}
+                />
             </DialogContent>
             <DialogActions>
                 <Button onClick={() => dispatch(closeDialog("product_create"))}>Cancel</Button>

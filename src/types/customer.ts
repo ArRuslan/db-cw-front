@@ -30,4 +30,5 @@ export const customerInfo = {
     "deletable": true,
     "addCallback": null,
     "externalAction": null,
+    "preloadExternal": null,
 }

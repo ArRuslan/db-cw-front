@@ -6,14 +6,13 @@ import CDataGrid from "./components/CDataGrid";
 import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
 import {SnackbarProvider} from "notistack";
 import CreateProductDialog from "./dialogs/CreateProductDialog";
-
-export type EntityType = "categories" | "products" | "orders" | "customers" | "characteristics";
+import {EntityType} from './types/base_entity';
+import SyntaxHighlighter from 'react-syntax-highlighter';
 
 export const entityType = signal<EntityType>("categories");
-export const entityTypes: EntityType[] = ["categories", "products", "orders", "customers", "characteristics"];
 
 function ListApp({entity}: { entity: EntityType }) {
-    entityType.value = entity;
+    entityType.value = entity as EntityType;
 
     return (
         <SnackbarProvider maxSnack={10} anchorOrigin={{vertical: "bottom", horizontal: "right"}}>
@@ -21,6 +20,17 @@ function ListApp({entity}: { entity: EntityType }) {
             <Box component="main" sx={{p: 3}}>
                 <CDataGrid/>
                 <CreateProductDialog/>
+            </Box>
+        </SnackbarProvider>
+    );
+}
+
+function SqlApp() {
+    return (
+        <SnackbarProvider maxSnack={10} anchorOrigin={{vertical: "bottom", horizontal: "right"}}>
+            <Navigation/>
+            <Box component="main" sx={{p: 3}}>
+                <SyntaxHighlighter language="javascript">a</SyntaxHighlighter>
             </Box>
         </SnackbarProvider>
     );
@@ -38,6 +48,7 @@ export default function App() {
                 <Route path="/orders" element={<ListApp entity="orders"/>}/>
                 <Route path="/customers" element={<ListApp entity="customers"/>}/>
                 <Route path="/characteristics" element={<ListApp entity="characteristics"/>}/>
+                <Route path="/sql" element={<SqlApp/>}/>
 
                 <Route path="*" element={def}/>
             </Routes>

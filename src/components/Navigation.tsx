@@ -28,13 +28,15 @@ import InventoryIcon from '@mui/icons-material/Inventory';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import PeopleIcon from '@mui/icons-material/People';
 import MemoryIcon from '@mui/icons-material/Memory';
-import {entityType, entityTypes} from "../App";
+import CodeIcon from '@mui/icons-material/Code';
+import {entityType} from "../App";
 import {capitalize} from "../utils";
 import {useNavigate} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../redux/store";
 import {setAuthToken} from "../redux/accountState";
 import {enqueueSnackbar} from "notistack";
+import {entityTypes} from "../types/base_entity";
 
 const drawerWidth = 240;
 
@@ -106,6 +108,20 @@ export default function Navigation() {
                         </ListItemButton>
                     </ListItem>
                 ))}
+
+                <Divider/>
+
+                <ListItem key="sql" disablePadding>
+                    <ListItemButton onClick={() => {
+                        navigate("/sql");
+                        setMobileOpen(false);
+                    }}>
+                        <ListItemIcon>
+                            <CodeIcon/>
+                        </ListItemIcon>
+                        <ListItemText primary="Sql console"/>
+                    </ListItemButton>
+                </ListItem>
             </List>
         </div>
     );
