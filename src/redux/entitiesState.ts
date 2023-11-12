@@ -1,17 +1,13 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
-import {Category} from "../types/category";
 import BaseEntity, {EntityType} from "../types/base_entity";
-import {Order} from "../types/order";
-import {Customer} from "../types/customer";
-import {Product} from "../types/product";
-import {Characteristic} from "../types/characteristic";
 
 export interface EntitiesState {
-    categories: {[key:number]: BaseEntity},
-    products: {[key:number]: BaseEntity},
-    customers: {[key:number]: BaseEntity},
-    orders: {[key:number]: BaseEntity},
-    characteristics: {[key:number]: BaseEntity},
+    current: BaseEntity[],
+    categories: { [key: number]: BaseEntity },
+    products: { [key: number]: BaseEntity },
+    customers: { [key: number]: BaseEntity },
+    orders: { [key: number]: BaseEntity },
+    characteristics: { [key: number]: BaseEntity },
     counts: {
         categories: number,
         products: number,
@@ -24,6 +20,7 @@ export interface EntitiesState {
 export const entitiesState = createSlice({
     "name": "entities",
     initialState: {
+        current: [],
         categories: {},
         products: {},
         customers: {},
@@ -39,10 +36,19 @@ export const entitiesState = createSlice({
     } as EntitiesState,
     reducers: {
         setEntities: (state: EntitiesState, action: PayloadAction<{ type: EntityType, arr: BaseEntity[] }>) => {
-            for(let ent of action.payload.arr)
+            for (let ent of action.payload.arr)
                 state[action.payload.type][ent.id] = ent;
         },
+        setCurrent: (state: EntitiesState, action: PayloadAction<BaseEntity[]>) => {
+            state.current = action.payload;
+        },
+        addCurrent: (state: EntitiesState, action: PayloadAction<BaseEntity>) => {
+            state.current.push(action.payload);
+        },
         delEntity: (state: EntitiesState, action: PayloadAction<{ type: EntityType, id: number }>) => {
+            const obj = state[action.payload.type][action.payload.id];
+            state.current = state.current.filter(item => JSON.stringify(item) !== JSON.stringify(obj));
+
             delete state[action.payload.type][action.payload.id];
         },
         setECount: (state: EntitiesState, action: PayloadAction<{ type: EntityType, count: number }>) => {
@@ -51,4 +57,4 @@ export const entitiesState = createSlice({
     }
 });
 
-export const {setEntities, delEntity, setECount} = entitiesState.actions;
+export const {setEntities, setCurrent, addCurrent, delEntity, setECount} = entitiesState.actions;

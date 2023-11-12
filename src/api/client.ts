@@ -1,4 +1,6 @@
 import store from "../redux/store";
+import {GridPaginationModel} from "@mui/x-data-grid/models/gridPaginationProps";
+import {GridFilterModel, GridSortModel} from "@mui/x-data-grid";
 
 interface FetchResult {
     results: object[],
@@ -96,5 +98,20 @@ export default class ApiClient {
                 reject(e);
             }
         })
+    }
+
+    static search_(entity: string, pagination: GridPaginationModel, filter: GridFilterModel, sort: GridSortModel): Promise<FetchResult> {
+        return new Promise((resolve, reject) => {
+            fetch(`http://127.0.0.1:8000/api/v0/${entity}/search`, {
+                method: "POST",
+                headers: {"Content-Type": "application/json", "Authorization": store.getState().account.token!},
+                body: JSON.stringify({pagination: pagination, filter: filter, sort: sort}),
+            }).then(r => {
+                r.status === 200 && r.json().then(j => {
+                    resolve(j as FetchResult);
+                });
+                r.status >= 400 && reject(r.status);
+            })
+        });
     }
 }

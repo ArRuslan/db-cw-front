@@ -4,12 +4,14 @@ import {
     GridActionsCellItem,
     GridColDef,
     GridEventListener,
+    GridFilterModel,
+    GridLogicOperator,
     GridRowEditStopReasons,
     GridRowId,
     GridRowModel,
     GridRowModes,
     GridRowModesModel,
-    GridRowsProp,
+    GridRowsProp, GridSortModel,
     GridToolbarContainer
 } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
@@ -26,7 +28,7 @@ import {useSnackbar} from "notistack";
 import {useDispatch, useSelector} from "react-redux";
 import {setAuthToken} from "../redux/accountState";
 import {RootState} from "../redux/store";
-import {delEntity, setECount, setEntities} from "../redux/entitiesState";
+import {addCurrent, delEntity, setCurrent, setECount, setEntities} from "../redux/entitiesState";
 import BaseEntity from "../types/base_entity";
 
 interface EditToolbarProps {
@@ -47,10 +49,12 @@ function EditToolbar(props: EditToolbarProps) {
         if (!TYPES[entityType.value].creatable)
             return;
         const id = Date.now();
+        const newRow = {id: id, isNew: true, ...TYPES[entityType.value].default()};
+        dispatch(addCurrent(newRow as BaseEntity));
         dispatch(setEntities({
             type: entityType.value,
-            arr: [{id: id, isNew: true, ...TYPES[entityType.value].default()}] as BaseEntity[]
-        }))
+            arr: [newRow] as BaseEntity[]
+        }));
         setRowModesModel((oldModel) => ({
             ...oldModel,
             [id]: {mode: GridRowModes.Edit, fieldToFocus: TYPES[entityType.value].colDef[0].field},
@@ -65,31 +69,35 @@ function EditToolbar(props: EditToolbarProps) {
 }
 
 function CDataGrid() {
-    const rows = useSelector((state: RootState) => state.entities[entityType.value]);
+    const current = useSelector((state: RootState) => state.entities.current);
+    const cached = useSelector((state: RootState) => state.entities[entityType.value]);
     const rowsCount = useSelector((state: RootState) => state.entities.counts[entityType.value]);
     const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
     const [isLoading, setLoading] = useState(true);
     const [paginationModel, setPaginationModel] = useState({page: 0, pageSize: 10});
+    const [filterModel, setFilterModel] = useState<GridFilterModel>({items: [], logicOperator: GridLogicOperator.Or});
+    const [sortModel, setSortModel] = useState<GridSortModel>([]);
     const {enqueueSnackbar} = useSnackbar();
     const token = useSelector((state: RootState) => state.account.token);
     const dispatch = useDispatch();
 
     const fetchItems = () => {
         setLoading(true);
-        ApiClient.fetch(TYPES[entityType.value].endpoint, paginationModel.page, paginationModel.pageSize).then(r => {
+        ApiClient.search_(TYPES[entityType.value].endpoint, paginationModel, filterModel, sortModel).then(r => {
             if(TYPES[entityType.value].preloadExternal !== null)
                 TYPES[entityType.value].preloadExternal!(r.results, []).then(p => {
                     dispatch(setEntities(p));
                 })
             dispatch(setEntities({type: entityType.value, arr: r.results as BaseEntity[]}));
             dispatch(setECount({type: entityType.value, count: r.count}));
+            dispatch(setCurrent(r.results as BaseEntity[]));
             setLoading(false);
         }, e => {
             typeof (e) === "number" && e === 401 && dispatch(setAuthToken(null));
         });
     }
 
-    useEffect(fetchItems, [paginationModel, entityType.value, token]);
+    useEffect(fetchItems, [paginationModel, filterModel, sortModel, entityType.value, token]);
 
     const handleRowEditStop: GridEventListener<'rowEditStop'> = (params, event) => {
         if (params.reason === GridRowEditStopReasons.rowFocusOut) {
@@ -124,7 +132,7 @@ function CDataGrid() {
             [id]: {mode: GridRowModes.View, ignoreModifications: true},
         });
 
-        if(rows[id as number].isNew)
+        if(cached[id as number].isNew)
             dispatch(delEntity({type: entityType.value, id: id as number}));
     };
 
@@ -137,6 +145,7 @@ function CDataGrid() {
             prom.then(r => {
                 newRow.isNew && dispatch(delEntity({type: entityType.value, id: newRow.id as number}));
                 dispatch(setEntities({type: entityType.value, arr: [r as BaseEntity]}));
+                dispatch(addCurrent(r as BaseEntity));
                 newRow.isNew && dispatch(setECount({type: entityType.value, count: rowsCount + 1}));
                 newRow.isNew
                     ? enqueueSnackbar('Created!', {variant: "info"})
@@ -227,7 +236,7 @@ function CDataGrid() {
     return (
         <DataGrid
             loading={isLoading}
-            rows={Object.values(rows)}
+            rows={current}
             rowCount={rowsCount}
             columns={columns}
             pageSizeOptions={[10, 25, 50, 100]}
@@ -241,6 +250,12 @@ function CDataGrid() {
             paginationMode="server"
             paginationModel={paginationModel}
             onPaginationModelChange={setPaginationModel}
+            filterMode="server"
+            filterModel={filterModel}
+            onFilterModelChange={setFilterModel}
+            sortingMode="server"
+            sortModel={sortModel}
+            onSortModelChange={setSortModel}
         />
     );
 }

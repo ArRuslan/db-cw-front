@@ -28,33 +28,6 @@ export const colDef: GridColDef[] = [
         valueGetter: (params) => params.row.customer?.email
     },
     {
-        field: 'first_name',
-        headerName: 'First name',
-        type: "string",
-        width: 150,
-        editable: false,
-        hideable: false,
-        valueGetter: (params) => params.row.customer?.first_name
-    },
-    {
-        field: 'last_name',
-        headerName: 'Last name',
-        type: "string",
-        width: 150,
-        editable: false,
-        hideable: false,
-        valueGetter: (params) => params.row.customer?.last_name
-    },
-    {
-        field: 'phone_number',
-        headerName: 'Phone number',
-        type: "number",
-        width: 150,
-        editable: false,
-        hideable: false,
-        valueGetter: (params) => params.row.customer?.phone_number
-    },
-    {
         field: 'status',
         headerName: 'Status',
         type: "singleSelect",
@@ -62,6 +35,15 @@ export const colDef: GridColDef[] = [
         editable: true,
         hideable: false,
         valueOptions: ["processing", "sent", "completed", "canceled"]
+    },
+    {
+        field: 'creation_time',
+        headerName: 'Creation Time',
+        type: "dateTime",
+        width: 200,
+        editable: true,
+        hideable: false,
+        valueGetter: (params) => new Date(params.row.creation_time)
     },
     {field: 'address', headerName: 'Address', type: "string", width: 150, editable: true, hideable: false},
     {
@@ -80,6 +62,7 @@ export const colDef: GridColDef[] = [
         width: 100,
         editable: false,
         hideable: false,
+        filterable: false,
         valueGetter: (params) => params.row.items?.length
     },
 ];
