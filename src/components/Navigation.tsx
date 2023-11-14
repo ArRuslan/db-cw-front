@@ -29,6 +29,7 @@ import ListAltIcon from '@mui/icons-material/ListAlt';
 import PeopleIcon from '@mui/icons-material/People';
 import MemoryIcon from '@mui/icons-material/Memory';
 import CodeIcon from '@mui/icons-material/Code';
+import BarChartIcon from '@mui/icons-material/BarChart';
 import {entityType} from "../App";
 import {capitalize} from "../utils";
 import {useNavigate} from "react-router-dom";
@@ -120,6 +121,17 @@ export default function Navigation() {
                             <CodeIcon/>
                         </ListItemIcon>
                         <ListItemText primary="Sql console"/>
+                    </ListItemButton>
+                </ListItem>
+                <ListItem key="statistics" disablePadding>
+                    <ListItemButton onClick={() => {
+                        navigate("/statistics");
+                        setMobileOpen(false);
+                    }}>
+                        <ListItemIcon>
+                            <BarChartIcon/>
+                        </ListItemIcon>
+                        <ListItemText primary="Statistics"/>
                     </ListItemButton>
                 </ListItem>
             </List>

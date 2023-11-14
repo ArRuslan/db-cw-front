@@ -114,4 +114,17 @@ export default class ApiClient {
             })
         });
     }
+
+    static statistics(path: string): Promise<object[]> {
+        return new Promise((resolve, reject) => {
+            fetch(`http://127.0.0.1:8000/api/v0/statistics/${path}`, {
+                headers: {"Authorization": store.getState().account.token!}
+            }).then(r => {
+                r.status === 200 && r.json().then(j => {
+                    resolve(j as object[]);
+                });
+                r.status >= 400 && reject(r.status);
+            })
+        });
+    }
 }
