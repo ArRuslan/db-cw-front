@@ -121,6 +121,7 @@ function CDataGrid() {
                 ? enqueueSnackbar('Deleted!', {variant: "info"})
                 : enqueueSnackbar('Failed to delete!', {variant: "error"});
             r && dispatch(setECount({type: entityType.value, count: rowsCount - 1}));
+            r && fetchItems();
         }, e => {
             typeof (e) === "number" && e === 401 && dispatch(setAuthToken(null));
         });
@@ -173,6 +174,7 @@ function CDataGrid() {
             align: 'center',
             width: 150,
             cellClassName: 'actions',
+            hideable: false,
             getActions: ({id}) => {
                 const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
 

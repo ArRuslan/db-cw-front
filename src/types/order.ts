@@ -63,6 +63,7 @@ export const colDef: GridColDef[] = [
         editable: false,
         hideable: false,
         filterable: false,
+        sortable: false,
         valueGetter: (params) => params.row.items?.length
     },
 ];

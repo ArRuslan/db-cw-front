@@ -18,7 +18,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../redux/store";
 import {closeDialog} from "../redux/dialogsState";
 import ApiClient from "../api/client";
-import {setECount, setEntities} from "../redux/entitiesState";
+import {addCurrent, setECount, setEntities} from "../redux/entitiesState";
 import {setAuthToken} from "../redux/accountState";
 import {useSnackbar} from "notistack";
 import BaseEntity from "../types/base_entity";
@@ -77,6 +77,7 @@ export default function CreateOrderDialog() {
 
         ApiClient.create("orders", data).then(r => {
             dispatch(setEntities({type: "orders", arr: [r] as BaseEntity[]}));
+            dispatch(addCurrent(r as BaseEntity));
             dispatch(setECount({type: "orders", count: rowCounts.orders + 1}));
             enqueueSnackbar('Created!', {variant: "info"});
             dispatch(closeDialog("order_create"));
@@ -84,6 +85,7 @@ export default function CreateOrderDialog() {
             typeof (e) === "number" && e === 401 && dispatch(setAuthToken(null));
             typeof (e) === "number" && e >= 400 && enqueueSnackbar(`Failed to create!`, {variant: "error"});
         }).catch(e => {
+            console.log(e);
             enqueueSnackbar(`Failed to create!`, {variant: "error"});
         });
     }

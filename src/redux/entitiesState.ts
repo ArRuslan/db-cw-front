@@ -43,7 +43,11 @@ export const entitiesState = createSlice({
             state.current = action.payload;
         },
         addCurrent: (state: EntitiesState, action: PayloadAction<BaseEntity>) => {
-            state.current.push(action.payload);
+            const existing = state.current.filter(e => e.id === action.payload.id);
+            if(existing.length)
+                Object.assign(existing[0], action.payload);
+            else
+                state.current.push(action.payload);
         },
         delEntity: (state: EntitiesState, action: PayloadAction<{ type: EntityType, id: number }>) => {
             const obj = state[action.payload.type][action.payload.id];
