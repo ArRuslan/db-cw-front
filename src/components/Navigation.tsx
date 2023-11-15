@@ -31,7 +31,6 @@ import MemoryIcon from '@mui/icons-material/Memory';
 import CodeIcon from '@mui/icons-material/Code';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import SummarizeIcon from '@mui/icons-material/Summarize';
-import {entityType} from "../App";
 import {capitalize} from "../utils";
 import {useNavigate} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
@@ -39,8 +38,10 @@ import {RootState} from "../redux/store";
 import {setAuthToken} from "../redux/accountState";
 import {enqueueSnackbar} from "notistack";
 import {entityTypes} from "../types/base_entity";
+import {signal} from "@preact/signals-react";
 
 const drawerWidth = 240;
+export const navigationTitle = signal("");
 
 export default function Navigation() {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -173,7 +174,7 @@ export default function Navigation() {
                         <MenuIcon onClick={handleDrawerToggle}/>
                     </IconButton>
                     <Typography variant="h6" component="div"
-                                sx={{flexGrow: 1}}>{capitalize(entityType.value)}</Typography>
+                                sx={{flexGrow: 1}}>{capitalize(navigationTitle.value)}</Typography>
                     <IconButton size="large" onClick={handleMenu} color="inherit">
                         <AccountCircle/>
                     </IconButton>

@@ -11,7 +11,7 @@ export interface Product extends BaseEntity {
     manufacturer: string,
     price: number,
     quantity: number,
-    per_order_limit: number | null,
+    per_order_limit: number,
     image_url: string | null,
     warranty_days: number,
     category_id: number,
@@ -66,7 +66,8 @@ export const productInfo = {
     "creatable": false,
     "deletable": true,
     "addCallback": () => store.dispatch(openDialog("product_create")),
-    "externalAction": (id: number) => null,  // TODO: open product page, with image, characteristics, etc.
+    // eslint-disable-next-line no-restricted-globals
+    "externalAction": (id: number) => location.href = `/products/${id}`,
     "preloadExternal": async (prods: object[], exclude: number[]): Promise<{type: EntityType, arr: BaseEntity[]}> => {
         const to_load = [];
         for(let prod of prods as Product[])

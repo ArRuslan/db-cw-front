@@ -1,10 +1,7 @@
 import React, {SyntheticEvent, useRef, useState} from 'react';
-import Box from "@mui/material/Box";
-import Navigation from "./components/Navigation";
 import {signal} from '@preact/signals-react';
 import CDataGrid from "./components/CDataGrid";
 import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
-import {SnackbarProvider} from "notistack";
 import CreateProductDialog from "./dialogs/CreateProductDialog";
 import {EntityType} from './types/base_entity';
 import CreateOrderDialog from "./dialogs/CreateOrderDialog";
@@ -16,32 +13,32 @@ import ApiClient from "./api/client";
 import SDataGrid, {StatPath, statPath, statValue} from "./components/SDataGrid";
 import store from "./redux/store";
 import FileSaver from "file-saver";
+import ProductPage from "./components/ProductPage";
+import BaseApp from "./components/BaseApp";
+import {navigationTitle} from "./components/Navigation";
 
 export const entityType = signal<EntityType>("categories");
 
 function ListApp({entity}: { entity: EntityType }) {
     entityType.value = entity as EntityType;
+    navigationTitle.value = entityType.value;
 
     return (
-        <SnackbarProvider maxSnack={10} anchorOrigin={{vertical: "bottom", horizontal: "right"}}>
-            <Navigation/>
-            <Box component="main" sx={{p: 3}}>
-                <CDataGrid/>
-                <CreateProductDialog/>
-                <CreateOrderDialog/>
-            </Box>
-        </SnackbarProvider>
+        <BaseApp>
+            <CDataGrid/>
+            <CreateProductDialog/>
+            <CreateOrderDialog/>
+        </BaseApp>
     );
 }
 
 function SqlPage() {
+    navigationTitle.value = "sql";
+
     return (
-        <SnackbarProvider maxSnack={10} anchorOrigin={{vertical: "bottom", horizontal: "right"}}>
-            <Navigation/>
-            <Box component="main" sx={{p: 3}}>
-                {/*<SyntaxHighlighter language="javascript">a</SyntaxHighlighter>*/}
-            </Box>
-        </SnackbarProvider>
+        <BaseApp>
+            {/*<SyntaxHighlighter language="javascript">a</SyntaxHighlighter>*/}
+        </BaseApp>
     );
 }
 
@@ -52,6 +49,8 @@ function StatisticsPage() {
     const [customerOptions, setCustomerOptions] = useState<Customer[]>([]);
     const [categoriesOptions, setCategoriesOptions] = useState<Category[]>([]);
     const previousController = useRef<AbortController>();
+
+    navigationTitle.value = "Statistics";
 
     const onAutocompleteChanged = (type: "customers" | "categories") => (event: SyntheticEvent, value: string) => {
         if (value) {
@@ -75,7 +74,7 @@ function StatisticsPage() {
     }
 
     let content = <></>;
-    if(type === "customers")
+    if (type === "customers")
         content = (
             <Autocomplete
                 fullWidth
@@ -88,7 +87,7 @@ function StatisticsPage() {
                 )}
             />
         );
-    else if(type === "categories")
+    else if (type === "categories")
         content = (
             <Autocomplete
                 fullWidth
@@ -101,7 +100,7 @@ function StatisticsPage() {
                 )}
             />
         );
-    else if(type === "customers-top")
+    else if (type === "customers-top")
         content = (
             <TextField label="Count" type="number" fullWidth variant="outlined" defaultValue={10} aria-valuemax={100}
                        onChange={(e) => (e.target.value !== null && statPath.value === "customers-top" ? statValue.value = Number(e.target.value) : 1)}/>
@@ -116,35 +115,35 @@ function StatisticsPage() {
     }
 
     return (
-        <SnackbarProvider maxSnack={10} anchorOrigin={{vertical: "bottom", horizontal: "right"}}>
-            <Navigation/>
-            <Box component="main" sx={{p: 3}}>
-                <InputLabel>Select statistics type</InputLabel>
-                <Select sx={{mb: 2}} value={type} fullWidth onChange={e => {
-                    setType(e.target.value as StatType);
-                    statPath.value = dataGridTypes[e.target.value as StatType] as StatPath;
-                }}>
-                    <MenuItem value="customers">Customer</MenuItem>
-                    <MenuItem value="categories">Category</MenuItem>
-                    <MenuItem value="customers-top">Customers Top</MenuItem>
-                    <MenuItem value="last_year">Monthly for last year</MenuItem>
-                    <MenuItem value="last_month">Daily for last month</MenuItem>
-                </Select>
-                {content}
-                <SDataGrid/>
-            </Box>
-        </SnackbarProvider>
+        <BaseApp>
+            <InputLabel>Select statistics type</InputLabel>
+            <Select sx={{mb: 2}} value={type} fullWidth onChange={e => {
+                setType(e.target.value as StatType);
+                statPath.value = dataGridTypes[e.target.value as StatType] as StatPath;
+            }}>
+                <MenuItem value="customers">Customer</MenuItem>
+                <MenuItem value="categories">Category</MenuItem>
+                <MenuItem value="customers-top">Customers Top</MenuItem>
+                <MenuItem value="last_year">Monthly for last year</MenuItem>
+                <MenuItem value="last_month">Daily for last month</MenuItem>
+            </Select>
+            {content}
+            <SDataGrid/>
+        </BaseApp>
     );
 }
 
 type ReportType = "customers" | "categories" | "products";
+
 function ReportsPage() {
     const [type, setType] = useState<ReportType>("customers");
-    const [value, setValue] = useState<number|null>(null);
+    const [value, setValue] = useState<number | null>(null);
     const [customerOptions, setCustomerOptions] = useState<Customer[]>([]);
     const [categoriesOptions, setCategoriesOptions] = useState<Category[]>([]);
     const [productsOptions, setProductsOptions] = useState<Product[]>([]);
     const previousController = useRef<AbortController>();
+
+    navigationTitle.value = "Reports";
 
     const onAutocompleteChanged = (type: ReportType) => (event: SyntheticEvent, value: string) => {
         if (value) {
@@ -156,19 +155,19 @@ function ReportsPage() {
             previousController.current = controller;
             let query = type === "categories" ? {"name": value, "description": value} : {"anything": value};
             ApiClient.search(type, query, signal).then(r => {
-                if(type === "customers")
+                if (type === "customers")
                     setCustomerOptions(r.results as Customer[]);
-                else if(type === "categories")
+                else if (type === "categories")
                     setCategoriesOptions(r.results as Category[]);
-                else if(type === "products")
+                else if (type === "products")
                     setProductsOptions(r.results as Product[]);
             });
         } else {
-            if(type === "customers")
+            if (type === "customers")
                 setCustomerOptions([]);
-            else if(type === "categories")
+            else if (type === "categories")
                 setCategoriesOptions([]);
-            else if(type === "products")
+            else if (type === "products")
                 setProductsOptions([]);
         }
     }
@@ -185,7 +184,7 @@ function ReportsPage() {
             )}
         />
     );
-    if(type === "products")
+    if (type === "products")
         autocomplete = (
             <Autocomplete
                 fullWidth
@@ -198,7 +197,7 @@ function ReportsPage() {
                 )}
             />
         );
-    else if(type === "categories")
+    else if (type === "categories")
         autocomplete = (
             <Autocomplete
                 fullWidth
@@ -215,28 +214,26 @@ function ReportsPage() {
     const downloadReport = () => {
         fetch(`http://127.0.0.1:8000/api/v0/reports/${type}/${value}?fmt=excel`, {
             headers: {"Authorization": store.getState().account.token!},
-        }).then(r =>  r.blob()).then(blob => {
+        }).then(r => r.blob()).then(blob => {
             FileSaver.saveAs(blob, "report.xlsx")
         })
     }
 
     return (
-        <SnackbarProvider maxSnack={10} anchorOrigin={{vertical: "bottom", horizontal: "right"}}>
-            <Navigation/>
-            <Box component="main" sx={{p: 3}}>
-                <InputLabel>Select statistics type</InputLabel>
-                <Select sx={{mb: 2}} value={type} fullWidth onChange={e => {
-                    setType(e.target.value as ReportType);
-                    setValue(null);
-                }}>
-                    <MenuItem value="customers">Customer</MenuItem>
-                    <MenuItem value="categories">Category</MenuItem>
-                    <MenuItem value="products">Product</MenuItem>
-                </Select>
-                {autocomplete}
-                <Button sx={{mt: 2}} fullWidth variant="outlined" onClick={downloadReport} disabled={value === null}>Get report</Button>
-            </Box>
-        </SnackbarProvider>
+        <BaseApp>
+            <InputLabel>Select statistics type</InputLabel>
+            <Select sx={{mb: 2}} value={type} fullWidth onChange={e => {
+                setType(e.target.value as ReportType);
+                setValue(null);
+            }}>
+                <MenuItem value="customers">Customer</MenuItem>
+                <MenuItem value="categories">Category</MenuItem>
+                <MenuItem value="products">Product</MenuItem>
+            </Select>
+            {autocomplete}
+            <Button sx={{mt: 2}} fullWidth variant="outlined" onClick={downloadReport} disabled={value === null}>Get
+                report</Button>
+        </BaseApp>
     );
 }
 
@@ -249,6 +246,7 @@ export default function App() {
                 <Route index path="/" element={def}/>
                 <Route path="/categories" element={<ListApp entity="categories"/>}/>
                 <Route path="/products" element={<ListApp entity="products"/>}/>
+                <Route path="/products/:productId" element={<ProductPage/>}/>
                 <Route path="/orders" element={<ListApp entity="orders"/>}/>
                 <Route path="/customers" element={<ListApp entity="customers"/>}/>
                 <Route path="/characteristics" element={<ListApp entity="characteristics"/>}/>
