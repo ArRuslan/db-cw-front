@@ -30,6 +30,7 @@ import PeopleIcon from '@mui/icons-material/People';
 import MemoryIcon from '@mui/icons-material/Memory';
 import CodeIcon from '@mui/icons-material/Code';
 import BarChartIcon from '@mui/icons-material/BarChart';
+import SummarizeIcon from '@mui/icons-material/Summarize';
 import {entityType} from "../App";
 import {capitalize} from "../utils";
 import {useNavigate} from "react-router-dom";
@@ -132,6 +133,17 @@ export default function Navigation() {
                             <BarChartIcon/>
                         </ListItemIcon>
                         <ListItemText primary="Statistics"/>
+                    </ListItemButton>
+                </ListItem>
+                <ListItem key="reports" disablePadding>
+                    <ListItemButton onClick={() => {
+                        navigate("/reports");
+                        setMobileOpen(false);
+                    }}>
+                        <ListItemIcon>
+                            <SummarizeIcon/>
+                        </ListItemIcon>
+                        <ListItemText primary="Reports"/>
                     </ListItemButton>
                 </ListItem>
             </List>

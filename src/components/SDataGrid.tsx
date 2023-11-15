@@ -1,11 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import {DataGrid, GridColDef} from '@mui/x-data-grid';
+import {DataGrid} from '@mui/x-data-grid';
 import ApiClient from "../api/client";
-import {TYPES} from "../types/types";
-import {entityType} from "../App";
 import {useDispatch} from "react-redux";
 import {setAuthToken} from "../redux/accountState";
-import {effect, signal} from "@preact/signals-react";
+import {signal} from "@preact/signals-react";
 
 export type StatPath = "customers" | "categories" | "customers-top" | "time/year" | "time/month";
 
@@ -53,7 +51,6 @@ function SDataGrid() {
     const dispatch = useDispatch();
 
     const fetchItems = (type: string, value: number | null) => {
-        console.log("???????")
         if(["customers", "categories"].includes(type) && value === null)
             return;
 
