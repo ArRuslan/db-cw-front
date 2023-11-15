@@ -156,7 +156,6 @@ function ReportsPage() {
             previousController.current = controller;
             let query = type === "categories" ? {"name": value, "description": value} : {"anything": value};
             ApiClient.search(type, query, signal).then(r => {
-                console.log(r.results)
                 if(type === "customers")
                     setCustomerOptions(r.results as Customer[]);
                 else if(type === "categories")

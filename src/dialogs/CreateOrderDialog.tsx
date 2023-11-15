@@ -85,7 +85,6 @@ export default function CreateOrderDialog() {
             typeof (e) === "number" && e === 401 && dispatch(setAuthToken(null));
             typeof (e) === "number" && e >= 400 && enqueueSnackbar(`Failed to create!`, {variant: "error"});
         }).catch(e => {
-            console.log(e);
             enqueueSnackbar(`Failed to create!`, {variant: "error"});
         });
     }
