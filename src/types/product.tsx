@@ -1,9 +1,10 @@
 import {GridColDef, GridRowModel} from "@mui/x-data-grid";
 import BaseEntity, {EntityType} from "./base_entity";
-import store from "../redux/store";
+import store, {RootState} from "../redux/store";
 import {openDialog} from "../redux/dialogsState";
 import {Category} from "./category";
 import ApiClient from "../api/client";
+import {useSelector} from "react-redux";
 
 export interface Product extends BaseEntity {
     id: number,
@@ -18,6 +19,13 @@ export interface Product extends BaseEntity {
 }
 
 export const def = () => ({});
+
+function CategoryCell({categoryId}: {categoryId: number}) {
+    const cats = useSelector((state: RootState) => state.entities.categories);
+    const cat = cats[categoryId] ? (cats[categoryId] as Category).name : "Unknown category!";
+
+    return <>{cat}</>
+}
 
 export const colDef: GridColDef[] = [
     {field: 'model', headerName: 'Model', type: "string", width: 150, editable: true, hideable: false},
@@ -34,19 +42,17 @@ export const colDef: GridColDef[] = [
     },
     {field: 'warranty_days', headerName: 'Warranty days', type: "number", width: 150, editable: true, hideable: false},
     {
-        field: 'category_id',
+        field: 'category__name',
         headerName: 'Category',
-        type: "singleSelect",
+        type: "string",
         width: 150,
         editable: false,
         hideable: false,
-        valueGetter: params => {
+        filterable: true,
+        renderCell: params => {
             const categoryId = params.row.category_id;
-            const cat = store.getState().entities.categories[categoryId];
-            if(cat) return (cat as Category).name;
-
-            return "Unknown category!"
-        }
+            return <CategoryCell categoryId={categoryId}/>
+        },
     },
 ];
 

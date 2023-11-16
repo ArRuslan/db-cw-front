@@ -2,7 +2,7 @@ import {useParams} from "react-router-dom";
 import BaseApp from "./BaseApp";
 import Box from "@mui/material/Box";
 import React, {SyntheticEvent, useEffect, useRef, useState} from "react";
-import {Autocomplete, Button, InputLabel, TextField} from "@mui/material";
+import {Autocomplete, Backdrop, Button, CircularProgress, InputLabel, TextField} from "@mui/material";
 import ApiClient from "../api/client";
 import {Product} from "../types/product";
 import {Category} from "../types/category";
@@ -79,6 +79,10 @@ export default function ProductPage() {
 
     return (
         <BaseApp>
+            <Backdrop sx={{ color: '#fff', }} open={loading}>
+                <CircularProgress color="inherit" />
+            </Backdrop>
+
             <Box sx={{display: "flex", flexDirection: "column", gap: 1}}>
                 <InputLabel>Manufacturer</InputLabel>
                 <TextField label="Manufacturer" type="text" value={manValue} onChange={e => setManValue(e.target.value)}
@@ -111,7 +115,6 @@ export default function ProductPage() {
                     options={categoryOptions}
                     onInputChange={onCategoryInputChange}
                     getOptionLabel={(option: Category) => option.name}
-                    style={{width: 300}}
                     onChange={(e, value) => setCurrentCategory(value === null ? defaultCategory : value)}
                     renderInput={(params) => (
                         <TextField {...params} label="Category" variant="outlined"/>

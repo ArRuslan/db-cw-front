@@ -19,7 +19,7 @@ export const def = () => ({});
 
 export const colDef: GridColDef[] = [
     {
-        field: 'email',
+        field: 'customer__email',
         headerName: 'Email',
         type: "string",
         width: 150,
@@ -80,6 +80,7 @@ export const orderInfo = {
     "creatable": false,
     "deletable": false,
     "addCallback": () => store.dispatch(openDialog("order_create")),
-    "externalAction": (id: number) => null,
+    // eslint-disable-next-line no-restricted-globals
+    "externalAction": (id: number) => location.href = `/orders/${id}`,
     "preloadExternal": null,
 }

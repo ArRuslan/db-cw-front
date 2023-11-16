@@ -16,6 +16,7 @@ import FileSaver from "file-saver";
 import ProductPage from "./components/ProductPage";
 import BaseApp from "./components/BaseApp";
 import {navigationTitle} from "./components/Navigation";
+import OrderPage from "./components/OrderPage";
 
 export const entityType = signal<EntityType>("categories");
 
@@ -248,6 +249,7 @@ export default function App() {
                 <Route path="/products" element={<ListApp entity="products"/>}/>
                 <Route path="/products/:productId" element={<ProductPage/>}/>
                 <Route path="/orders" element={<ListApp entity="orders"/>}/>
+                <Route path="/orders/:orderId" element={<OrderPage/>}/>
                 <Route path="/customers" element={<ListApp entity="customers"/>}/>
                 <Route path="/characteristics" element={<ListApp entity="characteristics"/>}/>
                 <Route path="/sql" element={<SqlPage/>}/>
