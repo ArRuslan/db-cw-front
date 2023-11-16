@@ -1,6 +1,7 @@
 import store from "../redux/store";
 import {GridPaginationModel} from "@mui/x-data-grid/models/gridPaginationProps";
 import {GridFilterModel, GridSortModel} from "@mui/x-data-grid";
+import {Recommendation} from "../types/recommendation";
 
 interface FetchResult {
     results: object[],
@@ -122,6 +123,19 @@ export default class ApiClient {
             }).then(r => {
                 r.status === 200 && r.json().then(j => {
                     resolve(j as object[]);
+                });
+                r.status >= 400 && reject(r.status);
+            })
+        });
+    }
+
+    static recommendations(): Promise<Recommendation[]> {
+        return new Promise((resolve, reject) => {
+            fetch(`http://127.0.0.1:8000/api/v0/products/price-recommendations`, {
+                headers: {"Authorization": store.getState().account.token!}
+            }).then(r => {
+                r.status === 200 && r.json().then(j => {
+                    resolve(j["result"] as Recommendation[]);
                 });
                 r.status >= 400 && reject(r.status);
             })

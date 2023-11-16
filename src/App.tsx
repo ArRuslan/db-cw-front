@@ -17,6 +17,7 @@ import ProductPage from "./components/ProductPage";
 import BaseApp from "./components/BaseApp";
 import {navigationTitle} from "./components/Navigation";
 import OrderPage from "./components/OrderPage";
+import PriceRecommendationsPage from "./components/PriceRecommendationsPage";
 
 export const entityType = signal<EntityType>("categories");
 
@@ -255,6 +256,7 @@ export default function App() {
                 <Route path="/sql" element={<SqlPage/>}/>
                 <Route path="/statistics" element={<StatisticsPage/>}/>
                 <Route path="/reports" element={<ReportsPage/>}/>
+                <Route path="/price-rec" element={<PriceRecommendationsPage/>}/>
 
                 <Route path="*" element={def}/>
             </Routes>

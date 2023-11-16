@@ -31,6 +31,7 @@ import MemoryIcon from '@mui/icons-material/Memory';
 import CodeIcon from '@mui/icons-material/Code';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import SummarizeIcon from '@mui/icons-material/Summarize';
+import AssistantIcon from '@mui/icons-material/Assistant';
 import {capitalize} from "../utils";
 import {useNavigate} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
@@ -145,6 +146,17 @@ export default function Navigation() {
                             <SummarizeIcon/>
                         </ListItemIcon>
                         <ListItemText primary="Reports"/>
+                    </ListItemButton>
+                </ListItem>
+                <ListItem key="recommendations" disablePadding>
+                    <ListItemButton onClick={() => {
+                        navigate("/price-rec");
+                        setMobileOpen(false);
+                    }}>
+                        <ListItemIcon>
+                            <AssistantIcon/>
+                        </ListItemIcon>
+                        <ListItemText primary="Price recommendations"/>
                     </ListItemButton>
                 </ListItem>
             </List>
