@@ -18,6 +18,7 @@ import BaseApp from "./components/BaseApp";
 import {navigationTitle} from "./components/Navigation";
 import OrderPage from "./components/OrderPage";
 import PriceRecommendationsPage from "./components/PriceRecommendationsPage";
+import {LicenseInfo} from "@mui/x-data-grid-pro";
 
 export const entityType = signal<EntityType>("categories");
 
@@ -223,7 +224,7 @@ function ReportsPage() {
 
     return (
         <BaseApp>
-            <InputLabel>Select statistics type</InputLabel>
+            <InputLabel>Select report type</InputLabel>
             <Select sx={{mb: 2}} value={type} fullWidth onChange={e => {
                 setType(e.target.value as ReportType);
                 setValue(null);
@@ -241,6 +242,8 @@ function ReportsPage() {
 
 export default function App() {
     const def = <Navigate to="/categories" replace/>;
+
+    LicenseInfo.setLicenseKey(process.env.REACT_APP_MUI_X_LICENSE_KEY ?? "");
 
     return (
         <BrowserRouter>

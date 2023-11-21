@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from 'react';
 import {
-    DataGrid,
     GridActionsCellItem,
     GridColDef,
     GridEventListener,
@@ -11,7 +10,8 @@ import {
     GridRowModel,
     GridRowModes,
     GridRowModesModel,
-    GridRowsProp, GridSortModel,
+    GridRowsProp,
+    GridSortModel,
     GridToolbarContainer
 } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
@@ -30,6 +30,7 @@ import {setAuthToken} from "../redux/accountState";
 import {RootState} from "../redux/store";
 import {addCurrent, delEntity, setCurrent, setECount, setEntities} from "../redux/entitiesState";
 import BaseEntity from "../types/base_entity";
+import {DataGridPro} from "@mui/x-data-grid-pro";
 
 interface EditToolbarProps {
     setRows: (newRows: (oldRows: GridRowsProp) => GridRowsProp) => void;
@@ -236,7 +237,7 @@ function CDataGrid() {
     ];
 
     return (
-        <DataGrid
+        <DataGridPro
             loading={isLoading}
             rows={current}
             rowCount={rowsCount}

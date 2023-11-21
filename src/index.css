@@ -16,3 +16,7 @@ html, body, #root {
   height: 100%;
   margin: 0;
 }
+
+/*#root > main > div > div.MuiDataGrid-main.css-204u17-MuiDataGrid-main > div:nth-child(3) {
+  display: none;
+}*/

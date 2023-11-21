@@ -31,7 +31,7 @@ export default function PriceRecommendationsPage() {
             for(let prodId of selected) {
                 const rec = recs[prodId];
                 if(!rec) continue;
-                await ApiClient.update("products", prodId, {price: rec["price"]});
+                await ApiClient.update("products", prodId, {price: rec["new_price"]});
                 setProds(pr => pr.filter(prod => prod.id !== prodId));
             }
             setLoading(false);

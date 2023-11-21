@@ -31,7 +31,7 @@ export const colDef: GridColDef[] = [
         field: 'status',
         headerName: 'Status',
         type: "singleSelect",
-        width: 100,
+        width: 150,
         editable: true,
         hideable: false,
         valueOptions: ["processing", "sent", "completed", "canceled"]
@@ -45,12 +45,12 @@ export const colDef: GridColDef[] = [
         hideable: false,
         valueGetter: (params) => new Date(params.row.creation_time)
     },
-    {field: 'address', headerName: 'Address', type: "string", width: 150, editable: true, hideable: false},
+    {field: 'address', headerName: 'Address', type: "string", width: 250, editable: true, hideable: false},
     {
         field: 'type',
         headerName: 'Type',
         type: "singleSelect",
-        width: 100,
+        width: 150,
         editable: true,
         hideable: false,
         valueOptions: ["pickup", "shipping"]
