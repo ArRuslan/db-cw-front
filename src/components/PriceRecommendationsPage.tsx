@@ -16,6 +16,8 @@ export default function PriceRecommendationsPage() {
     const getRec = () => {
         setLoading(true);
         ApiClient.recommendations().then(rec => {
+            for(let r of rec)
+                r["new_price"] = r["recommended_price"];
             setProds(rec);
             setLoading(false);
         })
@@ -38,6 +40,16 @@ export default function PriceRecommendationsPage() {
         })();
     }
 
+    const setPrice = (id: number, new_price: number) => {
+        setProds(prods_ => {
+            for(let prod of prods_) {
+                if(prod.id === id)
+                    prod["new_price"] = new_price;
+            }
+            return prods_;
+        })
+    }
+
     return (
         <BaseApp>
             <Backdrop sx={{ color: '#fff', }} open={loading}>
@@ -45,8 +57,8 @@ export default function PriceRecommendationsPage() {
             </Backdrop>
 
             <Button fullWidth variant="outlined" onClick={getRec} disabled={loading}>Get recommendations</Button>
-            <RDataGrid rows={prods} loading={loading} setSelected={setSelected}/>
-            {prods.length > 0 ? <Button fullWidth variant="outlined" onClick={apply} disabled={loading}>Apply</Button> : <></>}
+            <RDataGrid rows={prods} loading={loading} setSelected={setSelected} setPrice={setPrice}/>
+            {prods.length > 0 ? <Button fullWidth variant="outlined" onClick={apply} disabled={loading || selected.length === 0}>Apply</Button> : <></>}
         </BaseApp>
     );
 }

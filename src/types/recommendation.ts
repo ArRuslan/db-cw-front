@@ -3,6 +3,7 @@ export interface Recommendation {
     model: string,
     manufacturer: string,
     price: number,
+    recommended_price: number,
     new_price: number,
     action: "up" | "down",
 }
