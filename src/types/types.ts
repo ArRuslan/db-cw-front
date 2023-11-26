@@ -3,6 +3,7 @@ import {productInfo} from "./product";
 import {orderInfo} from "./order";
 import {customerInfo} from "./customer";
 import {characteristicInfo} from "./characteristic";
+import {returnInfo} from "./return";
 
 export const TYPES = {
     "categories": categoryInfo,
@@ -10,4 +11,5 @@ export const TYPES = {
     "orders": orderInfo,
     "customers": customerInfo,
     "characteristics": characteristicInfo,
+    "returns": returnInfo,
 }

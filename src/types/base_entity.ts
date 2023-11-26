@@ -3,5 +3,5 @@ export default interface BaseEntity {
     isNew: boolean,
 }
 
-export type EntityType = "categories" | "products" | "orders" | "customers" | "characteristics";
-export const entityTypes: EntityType[] = ["categories", "products", "orders", "customers", "characteristics"];
+export type EntityType = "categories" | "products" | "orders" | "customers" | "characteristics" | "returns";
+export const entityTypes: EntityType[] = ["categories", "products", "orders", "customers", "characteristics", "returns"];

@@ -32,6 +32,7 @@ import CodeIcon from '@mui/icons-material/Code';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import SummarizeIcon from '@mui/icons-material/Summarize';
 import AssistantIcon from '@mui/icons-material/Assistant';
+import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
 import {capitalize} from "../utils";
 import {useNavigate} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
@@ -90,6 +91,7 @@ export default function Navigation() {
         orders: <ListAltIcon/>,
         customers: <PeopleIcon/>,
         characteristics: <MemoryIcon/>,
+        returns: <KeyboardReturnIcon/>,
     }
 
     const drawer = (

@@ -256,6 +256,7 @@ export default function App() {
                 <Route path="/orders/:orderId" element={<OrderPage/>}/>
                 <Route path="/customers" element={<ListApp entity="customers"/>}/>
                 <Route path="/characteristics" element={<ListApp entity="characteristics"/>}/>
+                <Route path="/returns" element={<ListApp entity="returns"/>}/>
                 <Route path="/sql" element={<SqlPage/>}/>
                 <Route path="/statistics" element={<StatisticsPage/>}/>
                 <Route path="/reports" element={<ReportsPage/>}/>

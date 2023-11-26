@@ -19,6 +19,32 @@ import {Product} from "../types/product";
 import {navigationTitle} from "./Navigation";
 import {Customer} from "../types/customer";
 import {Order} from "../types/order";
+import {useSnackbar} from "notistack";
+import CreateReturnDialog from "../dialogs/CreateReturnDialog";
+
+function ProductItem({item, callback}: {item: Product, callback: (quantity: number, reason: string) => void}) {
+    const [isOpen, setOpen] = useState(false);
+
+    return (
+        <>
+            <Box sx={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+                my: 1
+            }}>
+                <Typography>{`${item.manufacturer} ${item.model}`}</Typography>
+                <Box sx={{display: "flex", alignItems: "center", gap: 1}}>
+                    <TextField label="Count" type="number" value={item.quantity} disabled/>
+                    <Button variant="outlined" onClick={() => setOpen(true)}>Return</Button>
+                </Box>
+            </Box>
+            <CreateReturnDialog open={isOpen} setOpen={(o) => setOpen(o)} callback={callback}/>
+            <Divider/>
+        </>
+    )
+}
 
 export default function OrderPage() {
     const params = useParams();
@@ -29,6 +55,7 @@ export default function OrderPage() {
     const [staValue, setStaValue] = useState("...");
     const [creValue, setCreValue] = useState<Date | null>(null);
     const [itmValue, setItmValue] = useState<Product[]>([]);
+    const {enqueueSnackbar} = useSnackbar();
 
     navigationTitle.value = "Order overview";
 
@@ -61,23 +88,22 @@ export default function OrderPage() {
         });
     }
 
+    const createReturn = (product_id: number) => (quantity: number, reason: string) => {
+        const data = {
+            order_id: Number(params.orderId),
+            product_id: product_id,
+            quantity: quantity,
+            reason: reason,
+        }
+        ApiClient.create("returns", data).then(
+            () => enqueueSnackbar(`Return created!`, {variant: "success"}),
+            () => enqueueSnackbar("Failed to create!", {variant: "error"})
+        )
+    }
+
     const ProductItems = memo(() => (
         <List style={{overflow: 'auto'}}>
-            {itmValue.map(item => (
-                <>
-                    <Box sx={{
-                        display: "flex",
-                        flexDirection: "row",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        my: 1
-                    }}>
-                        <Typography>{`${item.manufacturer} ${item.model}`}</Typography>
-                        <TextField label="Count" type="number" value={item.quantity} disabled/>
-                    </Box>
-                    <Divider/>
-                </>
-            ))}
+            {itmValue.map(item => <ProductItem item={item} callback={createReturn(item.id)}/>)}
         </List>
     ));
 

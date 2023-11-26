@@ -8,12 +8,14 @@ export interface EntitiesState {
     customers: { [key: number]: BaseEntity },
     orders: { [key: number]: BaseEntity },
     characteristics: { [key: number]: BaseEntity },
+    returns: { [key: number]: BaseEntity },
     counts: {
         categories: number,
         products: number,
         customers: number,
         orders: number,
         characteristics: number,
+        returns: number,
     },
 }
 
@@ -26,12 +28,14 @@ export const entitiesState = createSlice({
         customers: {},
         orders: {},
         characteristics: {},
+        returns: {},
         counts: {
             categories: 0,
             products: 0,
             customers: 0,
             orders: 0,
             characteristics: 0,
+            returns: 0,
         },
     } as EntitiesState,
     reducers: {
