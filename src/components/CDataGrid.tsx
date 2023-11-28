@@ -259,6 +259,7 @@ function CDataGrid() {
             sortingMode="server"
             sortModel={sortModel}
             onSortModelChange={setSortModel}
+            pagination={true}
         />
     );
 }
