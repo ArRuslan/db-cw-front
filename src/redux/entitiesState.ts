@@ -1,5 +1,6 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import BaseEntity, {EntityType} from "../types/base_entity";
+import {ProductCharacteristic} from "../types/characteristic";
 
 export interface EntitiesState {
     current: BaseEntity[],
@@ -17,6 +18,7 @@ export interface EntitiesState {
         characteristics: number,
         returns: number,
     },
+    product_characteristics: { [key: number]: ProductCharacteristic[] },
 }
 
 export const entitiesState = createSlice({
@@ -37,6 +39,7 @@ export const entitiesState = createSlice({
             characteristics: 0,
             returns: 0,
         },
+        product_characteristics: {},
     } as EntitiesState,
     reducers: {
         setEntities: (state: EntitiesState, action: PayloadAction<{ type: EntityType, arr: BaseEntity[] }>) => {
@@ -62,7 +65,25 @@ export const entitiesState = createSlice({
         setECount: (state: EntitiesState, action: PayloadAction<{ type: EntityType, count: number }>) => {
             state.counts[action.payload.type] = action.payload.count;
         },
+        setProductChars: (state: EntitiesState, action: PayloadAction<{ productId: number, chars: ProductCharacteristic[] }>) => {
+            state.product_characteristics[action.payload.productId] = action.payload.chars;
+        },
+        addProductChar: (state: EntitiesState, action: PayloadAction<{ productId: number, char: ProductCharacteristic }>) => {
+            if(!(action.payload.productId in state.product_characteristics))
+                state.product_characteristics[action.payload.productId] = [];
+            state.product_characteristics[action.payload.productId].push(action.payload.char);
+        },
+        delProductChar: (state: EntitiesState, action: PayloadAction<{ productId: number, charId: number }>) => {
+            const pc = state.product_characteristics;
+            const prodId = action.payload.productId;
+            const charId = action.payload.charId;
+
+            if(!(prodId in pc))
+                pc[prodId] = [];
+
+            pc[prodId] = pc[prodId].filter(c => c.id !== charId);
+        },
     }
 });
 
-export const {setEntities, setCurrent, addCurrent, delEntity, setECount} = entitiesState.actions;
+export const {setEntities, setCurrent, addCurrent, delEntity, setECount, setProductChars, addProductChar, delProductChar} = entitiesState.actions;

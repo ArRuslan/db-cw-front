@@ -1,10 +1,10 @@
-import BaseApp from "./BaseApp";
+import BaseApp from "../components/BaseApp";
 import {Backdrop, Button, CircularProgress} from "@mui/material";
 import React, {useState} from "react";
-import RDataGrid from "./RDataGrid";
+import RDataGrid from "../components/RDataGrid";
 import {Recommendation} from "../types/recommendation";
 import ApiClient from "../api/client";
-import {navigationTitle} from "./Navigation";
+import {navigationTitle} from "../components/Navigation";
 
 export default function PriceRecommendationsPage() {
     const [loading, setLoading] = useState(false);

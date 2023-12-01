@@ -7,6 +7,13 @@ export interface Characteristic extends BaseEntity {
     measurement_unit: string,
 }
 
+export interface ProductCharacteristic extends BaseEntity {
+    id: number,
+    name: string,
+    value: string,
+    unit: string,
+}
+
 export const colDef: GridColDef[] = [
     {field: 'name', headerName: 'Name', width: 180, editable: true, hideable: false},
     {field: 'measurement_unit', headerName: 'Measurement Unit', width: 150, editable: true, hideable: false},

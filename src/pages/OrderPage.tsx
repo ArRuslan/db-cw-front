@@ -1,5 +1,5 @@
 import {useParams} from "react-router-dom";
-import BaseApp from "./BaseApp";
+import BaseApp from "../components/BaseApp";
 import Box from "@mui/material/Box";
 import React, {memo, useEffect, useState} from "react";
 import {
@@ -16,11 +16,11 @@ import {
 } from "@mui/material";
 import ApiClient from "../api/client";
 import {Product} from "../types/product";
-import {navigationTitle} from "./Navigation";
+import {navigationTitle} from "../components/Navigation";
 import {Customer} from "../types/customer";
 import {Order} from "../types/order";
 import {useSnackbar} from "notistack";
-import CreateReturnDialog from "../dialogs/CreateReturnDialog";
+import CreateReturnDialog from "../components/dialogs/CreateReturnDialog";
 
 function ProductItem({item, callback}: {item: Product, callback: (quantity: number, reason: string) => void}) {
     const [isOpen, setOpen] = useState(false);

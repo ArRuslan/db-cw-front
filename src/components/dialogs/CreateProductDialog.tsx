@@ -1,15 +1,15 @@
 import {Autocomplete, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField} from "@mui/material";
 import React, {SyntheticEvent, useRef, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {RootState} from "../redux/store";
-import {closeDialog} from "../redux/dialogsState";
-import {Category} from "../types/category";
-import ApiClient from "../api/client";
-import {setECount, setEntities} from "../redux/entitiesState";
-import {entityType} from "../App";
-import {setAuthToken} from "../redux/accountState";
+import {RootState} from "../../redux/store";
+import {closeDialog} from "../../redux/dialogsState";
+import {Category} from "../../types/category";
+import ApiClient from "../../api/client";
+import {setECount, setEntities} from "../../redux/entitiesState";
+import {entityType} from "../../App";
+import {setAuthToken} from "../../redux/accountState";
 import {useSnackbar} from "notistack";
-import BaseEntity from "../types/base_entity";
+import BaseEntity from "../../types/base_entity";
 
 export default function CreateProductDialog() {
     const open = useSelector((state: RootState) => state.dialogs.product_create);

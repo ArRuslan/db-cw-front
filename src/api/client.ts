@@ -2,6 +2,7 @@ import store from "../redux/store";
 import {GridPaginationModel} from "@mui/x-data-grid/models/gridPaginationProps";
 import {GridFilterModel, GridSortModel} from "@mui/x-data-grid";
 import {Recommendation} from "../types/recommendation";
+import {ProductCharacteristic} from "../types/characteristic";
 
 interface FetchResult {
     results: object[],
@@ -138,6 +139,46 @@ export default class ApiClient {
                     resolve(j["result"] as Recommendation[]);
                 });
                 r.status >= 400 && reject(r.status);
+            })
+        });
+    }
+
+    static chars_fetch(productId: number): Promise<ProductCharacteristic[]> {
+        return new Promise((resolve, reject) => {
+            fetch(`http://127.0.0.1:8000/api/v0/products/${productId}/chars`, {
+                headers: {"Authorization": store.getState().account.token!}
+            }).then(r => {
+                r.status === 200 && r.json().then(j => {
+                    resolve(j as ProductCharacteristic[]);
+                });
+                r.status >= 400 && reject(r.status);
+            })
+        });
+    }
+
+    static chars_set(productId: number, charId: number, value: string): Promise<ProductCharacteristic> {
+        return new Promise((resolve, reject) => {
+            fetch(`http://127.0.0.1:8000/api/v0/products/${productId}/chars/${charId}`, {
+                method: "PUT",
+                headers: {"Authorization": store.getState().account.token!, "Content-Type": "application/json"},
+                body: JSON.stringify({"value": value}),
+            }).then(r => {
+                r.status === 200 && r.json().then(j => {
+                    resolve(j as ProductCharacteristic);
+                });
+                r.status >= 400 && reject(r.status);
+            })
+        });
+    }
+
+    static chars_delete(productId: number, charId: number): Promise<null> {
+        return new Promise((resolve, reject) => {
+            fetch(`http://127.0.0.1:8000/api/v0/products/${productId}/chars/${charId}`, {
+                method: "DELETE",
+                headers: {"Authorization": store.getState().account.token!},
+            }).then(r => {
+                r.status >= 400 && reject(r.status);
+                r.status >= 200 && resolve(null);
             })
         });
     }

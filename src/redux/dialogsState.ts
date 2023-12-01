@@ -3,6 +3,7 @@ import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 export interface DialogsState {
     product_create: boolean,
     order_create: boolean,
+    char_create: boolean,
 }
 
 export const dialogsState = createSlice({
@@ -10,6 +11,7 @@ export const dialogsState = createSlice({
     initialState: {
         product_create: false,
         order_create: false,
+        char_create: false,
     } as DialogsState,
     reducers: {
         openDialog: (state: DialogsState, action: PayloadAction<keyof DialogsState>) => {

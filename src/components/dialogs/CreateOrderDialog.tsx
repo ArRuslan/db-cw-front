@@ -15,15 +15,15 @@ import {
 } from "@mui/material";
 import React, {memo, SyntheticEvent, useRef, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {RootState} from "../redux/store";
-import {closeDialog} from "../redux/dialogsState";
-import ApiClient from "../api/client";
-import {addCurrent, setECount, setEntities} from "../redux/entitiesState";
-import {setAuthToken} from "../redux/accountState";
+import {RootState} from "../../redux/store";
+import {closeDialog} from "../../redux/dialogsState";
+import ApiClient from "../../api/client";
+import {addCurrent, setECount, setEntities} from "../../redux/entitiesState";
+import {setAuthToken} from "../../redux/accountState";
 import {useSnackbar} from "notistack";
-import BaseEntity from "../types/base_entity";
-import {Customer} from "../types/customer";
-import {Product} from "../types/product";
+import BaseEntity from "../../types/base_entity";
+import {Customer} from "../../types/customer";
+import {Product} from "../../types/product";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 
 interface OrderItem {
