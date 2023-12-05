@@ -16,7 +16,7 @@ export const entityType = signal<EntityType>("categories");
 export default function App() {
     const def = <Navigate to="/categories" replace/>;
 
-    LicenseInfo.setLicenseKey(process.env.REACT_APP_MUI_X_LICENSE_KEY ?? "");
+    LicenseInfo.setLicenseKey(import.meta.env.VITE_APP_MUI_X_LICENSE_KEY ?? "");
 
     return (
         <BrowserRouter>
