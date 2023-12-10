@@ -78,7 +78,7 @@ export default function CreateCharacteristicDialog({productId}: { productId: num
             </DialogContent>
             <DialogActions>
                 <Button onClick={() => dispatch(closeDialog("char_create"))}>Cancel</Button>
-                <Button onClick={putChar}>Create</Button>
+                <Button onClick={putChar}>Add</Button>
             </DialogActions>
         </Dialog>
     );

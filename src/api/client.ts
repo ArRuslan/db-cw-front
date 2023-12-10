@@ -9,6 +9,16 @@ interface FetchResult {
     count: number,
 }
 
+interface ExecuteResponse {
+    columns: {
+        name: string,
+        type: "string" | "number" | "date",
+    }[],
+    result: {
+        [key:string]: string | number | Date
+    }[],
+}
+
 export default class ApiClient {
     static fetch(entity: string, page: number, pageSize: number): Promise<FetchResult> {
         return new Promise((resolve, reject) => {
@@ -179,6 +189,19 @@ export default class ApiClient {
             }).then(r => {
                 r.status >= 400 && reject(r.status);
                 r.status >= 200 && resolve(null);
+            })
+        });
+    }
+
+    static execute_sql(query: string): Promise<ExecuteResponse> {
+        return new Promise((resolve, reject) => {
+            fetch(`http://127.0.0.1:8000/api/v0/sql`, {
+                method: "POST",
+                headers: {"Authorization": store.getState().account.token!, "Content-Type": "application/json"},
+                body: JSON.stringify({"query": query}),
+            }).then(r => {
+                r.status >= 400 && reject(r.status);
+                r.status >= 200 && r.json().then(j => resolve(j as ExecuteResponse));
             })
         });
     }
