@@ -10,8 +10,17 @@ import ReportsPage from "./pages/ReportsPage";
 import StatisticsPage from "./pages/StatisticsPage";
 import ListApp from "./pages/ListPage";
 import SqlPage from "./pages/SqlPage";
+import {SnackbarProvider} from "notistack";
 
 export const entityType = signal<EntityType>("categories");
+
+function SnackbarWrapper({children}: { children: React.JSX.Element }) {
+    return (
+        <SnackbarProvider maxSnack={10} anchorOrigin={{vertical: "bottom", horizontal: "right"}}>
+            {children}
+        </SnackbarProvider>
+    )
+}
 
 export default function App() {
     const def = <Navigate to="/categories" replace/>;
@@ -22,18 +31,18 @@ export default function App() {
         <BrowserRouter>
             <Routes>
                 <Route index path="/" element={def}/>
-                <Route path="/categories" element={<ListApp entity="categories"/>}/>
-                <Route path="/products" element={<ListApp entity="products"/>}/>
-                <Route path="/products/:productId" element={<ProductPage/>}/>
-                <Route path="/orders" element={<ListApp entity="orders"/>}/>
-                <Route path="/orders/:orderId" element={<OrderPage/>}/>
-                <Route path="/customers" element={<ListApp entity="customers"/>}/>
-                <Route path="/characteristics" element={<ListApp entity="characteristics"/>}/>
-                <Route path="/returns" element={<ListApp entity="returns"/>}/>
-                <Route path="/sql" element={<SqlPage/>}/>
-                <Route path="/statistics" element={<StatisticsPage/>}/>
-                <Route path="/reports" element={<ReportsPage/>}/>
-                <Route path="/price-rec" element={<PriceRecommendationsPage/>}/>
+                <Route path="/categories" element={<SnackbarWrapper><ListApp entity="categories"/></SnackbarWrapper>}/>
+                <Route path="/products" element={<SnackbarWrapper><ListApp entity="products"/></SnackbarWrapper>}/>
+                <Route path="/products/:productId" element={<SnackbarWrapper><ProductPage/></SnackbarWrapper>}/>
+                <Route path="/orders" element={<SnackbarWrapper><ListApp entity="orders"/></SnackbarWrapper>}/>
+                <Route path="/orders/:orderId" element={<SnackbarWrapper><OrderPage/></SnackbarWrapper>}/>
+                <Route path="/customers" element={<SnackbarWrapper><ListApp entity="customers"/></SnackbarWrapper>}/>
+                <Route path="/characteristics" element={<SnackbarWrapper><ListApp entity="characteristics"/></SnackbarWrapper>}/>
+                <Route path="/returns" element={<SnackbarWrapper><ListApp entity="returns"/></SnackbarWrapper>}/>
+                <Route path="/sql" element={<SnackbarWrapper><SqlPage/></SnackbarWrapper>}/>
+                <Route path="/statistics" element={<SnackbarWrapper><StatisticsPage/></SnackbarWrapper>}/>
+                <Route path="/reports" element={<SnackbarWrapper><ReportsPage/></SnackbarWrapper>}/>
+                <Route path="/price-rec" element={<SnackbarWrapper><PriceRecommendationsPage/></SnackbarWrapper>}/>
 
                 <Route path="*" element={def}/>
             </Routes>

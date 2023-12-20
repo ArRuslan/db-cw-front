@@ -202,6 +202,8 @@ export default class ApiClient {
             }).then(r => {
                 r.status >= 400 && reject(r.status);
                 r.status >= 200 && r.json().then(j => resolve(j as ExecuteResponse));
+            }).catch(() => {
+                reject(500);
             })
         });
     }

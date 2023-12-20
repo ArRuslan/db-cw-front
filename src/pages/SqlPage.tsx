@@ -5,6 +5,7 @@ import {Button, InputLabel} from "@mui/material";
 import {Textarea} from "@mui/joy";
 import ApiClient from "../api/client";
 import {DataGrid, GridColDef} from '@mui/x-data-grid';
+import {useSnackbar} from "notistack";
 
 
 const def = {editable: false, hideable: false, sortable: true, filterable: false, width: 150, align: "left", headerAlign: "left"};
@@ -14,6 +15,7 @@ export default function SqlPage() {
     const [query, setQuery] = useState("");
     const [rows, setRows] = useState<{ [key: string]: string | number | Date }[]>([]);
     const [cols, setCols] = useState<GridColDef[]>([]);
+    const {enqueueSnackbar} = useSnackbar();
 
     navigationTitle.value = "sql";
 
@@ -28,7 +30,12 @@ export default function SqlPage() {
                 type: col.type
             })) as GridColDef[]);
             setRows(r.result);
-            console.log(r);
+            setLoading(false);
+        }, e => {
+            enqueueSnackbar('Failed to execute!', {variant: "error"});
+            setLoading(false);
+        }).catch(() => {
+            enqueueSnackbar('Failed to execute!', {variant: "error"});
             setLoading(false);
         });
     };
