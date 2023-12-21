@@ -125,6 +125,7 @@ function CDataGrid() {
             r && fetchItems();
         }, e => {
             typeof (e) === "number" && e === 401 && dispatch(setAuthToken(null));
+            enqueueSnackbar('Failed to delete!', {variant: "error"});
         });
     };
 
@@ -156,6 +157,7 @@ function CDataGrid() {
                 resolve(r);
             }, e => {
                 typeof (e) === "number" && e === 401 && dispatch(setAuthToken(null));
+                enqueueSnackbar(`Failed to ${newRow.isNew ? "create" : "update"}!`, {variant: "error"});
             }).catch(e => {
                 enqueueSnackbar(`Failed to ${newRow.isNew ? "create" : "update"}!`, {variant: "error"});
             });

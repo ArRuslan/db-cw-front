@@ -8,6 +8,7 @@ import {Autocomplete, Button, InputLabel, MenuItem, Select, TextField} from "@mu
 import store from "../redux/store";
 import FileSaver from "file-saver";
 import BaseApp from "../components/BaseApp";
+import {useSnackbar} from "notistack";
 
 type ReportType = "customers" | "categories" | "products";
 
@@ -18,6 +19,7 @@ export default function ReportsPage() {
     const [categoriesOptions, setCategoriesOptions] = useState<Category[]>([]);
     const [productsOptions, setProductsOptions] = useState<Product[]>([]);
     const previousController = useRef<AbortController>();
+    const {enqueueSnackbar} = useSnackbar();
 
     navigationTitle.value = "Reports";
 
@@ -90,9 +92,18 @@ export default function ReportsPage() {
     const downloadReport = () => {
         fetch(`http://127.0.0.1:8000/api/v0/reports/${type}/${value}?fmt=excel`, {
             headers: {"Authorization": store.getState().account.token!},
-        }).then(r => r.blob()).then(blob => {
-            FileSaver.saveAs(blob, "report.xlsx")
-        })
+        }).then(r => {
+            if(r.status >= 400) {
+                enqueueSnackbar('Failed to get report!', {variant: "error"});
+                return null;
+            }
+            return r.blob()
+        }).then(blob => {
+            blob && FileSaver.saveAs(blob, "report.xlsx")
+        }, e => enqueueSnackbar('Failed to get report!', {variant: "error"}))
+            .catch(() => {
+                enqueueSnackbar('Failed to get statistics!', {variant: "error"});
+            });
     }
 
     return (

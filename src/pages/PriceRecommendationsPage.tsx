@@ -5,11 +5,13 @@ import RDataGrid from "../components/RDataGrid";
 import {Recommendation} from "../types/recommendation";
 import ApiClient from "../api/client";
 import {navigationTitle} from "../components/Navigation";
+import {useSnackbar} from "notistack";
 
 export default function PriceRecommendationsPage() {
     const [loading, setLoading] = useState(false);
     const [prods, setProds] = useState<Recommendation[]>([]);
     const [selected, setSelected] = useState<number[]>([]);
+    const {enqueueSnackbar} = useSnackbar();
 
     navigationTitle.value = "Price Recommendations";
 
@@ -19,6 +21,9 @@ export default function PriceRecommendationsPage() {
             for(let r of rec)
                 r["new_price"] = r["recommended_price"];
             setProds(rec);
+            setLoading(false);
+        }, () => {
+            enqueueSnackbar('Failed to get recommendations!', {variant: "error"});
             setLoading(false);
         })
     };

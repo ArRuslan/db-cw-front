@@ -4,6 +4,7 @@ import ApiClient from "../api/client";
 import {useDispatch} from "react-redux";
 import {setAuthToken} from "../redux/accountState";
 import {signal} from "@preact/signals-react";
+import {useSnackbar} from "notistack";
 
 export type StatPath = "customers" | "categories" | "customers-top" | "time/year" | "time/month";
 
@@ -49,6 +50,7 @@ function SDataGrid() {
     const [rows, setRows] = useState<object[]>([]);
     const [isLoading, setLoading] = useState(true);
     const dispatch = useDispatch();
+    const {enqueueSnackbar} = useSnackbar();
 
     const fetchItems = (type: string, value: number | null) => {
         if(["customers", "categories"].includes(type) && value === null)
@@ -66,6 +68,7 @@ function SDataGrid() {
             setLoading(false);
         }, e => {
             typeof (e) === "number" && e === 401 && dispatch(setAuthToken(null));
+            enqueueSnackbar('Failed to get statistics!', {variant: "error"});
         });
     }
 
